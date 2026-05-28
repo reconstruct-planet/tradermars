@@ -353,6 +353,67 @@ async function main() {
   for (const user of eliteTestUsers) {
     console.log(`- ${user.email} / ${user.password}`);
   }
+
+  await ensureInitialSuperAdmin();
+}
+
+async function ensureInitialSuperAdmin() {
+  const email = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+  const password = process.env.ADMIN_INITIAL_PASSWORD;
+
+  if (!email || !password) return;
+
+  if (password.length < 12) {
+    throw new Error('ADMIN_INITIAL_PASSWORD must be at least 12 characters.');
+  }
+
+  const passwordHash = await bcrypt.hash(password, 10);
+  const existing = await prisma.user.findUnique({
+    where: { email },
+    select: { id: true, role: true, status: true, passwordHash: true }
+  });
+
+  const user = existing
+    ? await prisma.user.update({
+        where: { id: existing.id },
+        data: {
+          role: 'SUPER_ADMIN',
+          status: 'ACTIVE',
+          emailVerified: new Date(),
+          suspendedAt: null,
+          suspendedReason: null,
+          deletedAt: null,
+          ...(existing.passwordHash ? {} : { passwordHash })
+        }
+      })
+    : await prisma.user.create({
+        data: {
+          email,
+          name: 'Initial Super Admin',
+          passwordHash,
+          role: 'SUPER_ADMIN',
+          status: 'ACTIVE',
+          emailVerified: new Date(),
+          timezone: demoTradingData.user.timezone
+        }
+      });
+
+  await prisma.auditLog.create({
+    data: {
+      actorUserId: null,
+      targetUserId: user.id,
+      action: existing ? 'INITIAL_SUPER_ADMIN_CONFIRMED' : 'INITIAL_SUPER_ADMIN_CREATED',
+      entityType: 'User',
+      entityId: user.id,
+      metadata: {
+        source: 'prisma/seed.ts',
+        email,
+        passwordUpdated: existing ? !existing.passwordHash : true
+      }
+    }
+  }).catch(() => undefined);
+
+  console.log(`SUPER_ADMIN ready for ${email}.`);
 }
 
 main()
