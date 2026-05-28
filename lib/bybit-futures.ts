@@ -1,6 +1,6 @@
 import { createHash } from 'crypto';
+import { strFromU8, unzipSync } from 'fflate';
 import Papa from 'papaparse';
-import * as XLSX from 'xlsx';
 
 export const BYBIT_FUTURES_ADAPTER_VERSION = 'bybit-futures-v1';
 
@@ -267,12 +267,12 @@ export async function readBybitUploadedFile({
 export function parseTabularBuffer(fileName: string, buffer: Buffer): Record<string, string>[] {
   const lowerName = fileName.toLowerCase();
 
-  if (lowerName.endsWith('.xlsx') || lowerName.endsWith('.xls')) {
-    const workbook = XLSX.read(buffer, { type: 'buffer', cellDates: false, raw: false });
-    const sheetName = workbook.SheetNames[0];
-    if (!sheetName) return [];
-    const sheet = workbook.Sheets[sheetName];
-    return cleanRows(XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { defval: '', raw: false }));
+  if (lowerName.endsWith('.xlsx')) {
+    return parseXlsxRows(buffer);
+  }
+
+  if (lowerName.endsWith('.xls')) {
+    throw new Error('Legacy .xls files are not supported. Export CSV or XLSX from Bybit.');
   }
 
   const parsed = Papa.parse<Record<string, string>>(stripBom(buffer.toString('utf8')), {
@@ -1185,6 +1185,118 @@ function cleanRows(rows: Array<Record<string, unknown>>) {
       return cleaned;
     })
     .filter((row) => Object.values(row).some((value) => value.trim()));
+}
+
+function parseXlsxRows(buffer: Buffer) {
+  const zip = unzipSync(new Uint8Array(buffer));
+  const read = (path: string) => {
+    const entry = zip[path];
+    return entry ? strFromU8(entry) : '';
+  };
+  const sheetPath = findFirstWorksheetPath(read, zip);
+  if (!sheetPath) return [];
+
+  const sharedStrings = parseSharedStrings(read('xl/sharedStrings.xml'));
+  const rows = parseWorksheetXml(read(sheetPath), sharedStrings);
+  const headers = rows[0]?.map((header) => header.trim()) ?? [];
+  if (!headers.length) return [];
+
+  return cleanRows(
+    rows.slice(1).map((cells) =>
+      headers.reduce<Record<string, string>>((record, header, index) => {
+        if (header) record[header] = cells[index] ?? '';
+        return record;
+      }, {})
+    )
+  );
+}
+
+function findFirstWorksheetPath(read: (path: string) => string, zip: Record<string, Uint8Array>) {
+  const workbook = read('xl/workbook.xml');
+  const relationships = read('xl/_rels/workbook.xml.rels');
+  const sheetMatch = workbook.match(/<sheet\b[^>]*\br:id="([^"]+)"/);
+  const relationshipId = sheetMatch?.[1];
+
+  if (relationshipId) {
+    const relationshipRegex = new RegExp(`<Relationship\\b[^>]*\\bId="${escapeRegExp(relationshipId)}"[^>]*\\bTarget="([^"]+)"`, 'i');
+    const target = relationships.match(relationshipRegex)?.[1];
+    if (target) {
+      const normalized = target.startsWith('/') ? target.slice(1) : `xl/${target.replace(/^xl\//, '')}`;
+      if (zip[normalized]) return normalized;
+    }
+  }
+
+  return zip['xl/worksheets/sheet1.xml'] ? 'xl/worksheets/sheet1.xml' : Object.keys(zip).find((path) => path.startsWith('xl/worksheets/') && path.endsWith('.xml')) ?? null;
+}
+
+function parseSharedStrings(xml: string) {
+  const strings: string[] = [];
+  const sharedStringMatches = xml.matchAll(/<si\b[\s\S]*?<\/si>/g);
+  for (const match of sharedStringMatches) {
+    const textParts = Array.from(match[0].matchAll(/<t\b[^>]*>([\s\S]*?)<\/t>/g)).map((part) => decodeXml(part[1] ?? ''));
+    strings.push(textParts.join(''));
+  }
+  return strings;
+}
+
+function parseWorksheetXml(xml: string, sharedStrings: string[]) {
+  const rows: string[][] = [];
+  const rowMatches = xml.matchAll(/<row\b[^>]*>([\s\S]*?)<\/row>/g);
+
+  for (const rowMatch of rowMatches) {
+    const cells: string[] = [];
+    const cellMatches = (rowMatch[1] ?? '').matchAll(/<c\b([^>]*)>([\s\S]*?)<\/c>/g);
+    let nextIndex = 0;
+
+    for (const cellMatch of cellMatches) {
+      const attributes = cellMatch[1] ?? '';
+      const body = cellMatch[2] ?? '';
+      const ref = attributes.match(/\br="([^"]+)"/)?.[1];
+      const type = attributes.match(/\bt="([^"]+)"/)?.[1];
+      const index = ref ? columnIndexFromCellRef(ref) : nextIndex;
+      cells[index] = readXlsxCellValue(body, type, sharedStrings);
+      nextIndex = index + 1;
+    }
+
+    if (cells.some((value) => value?.trim())) rows.push(cells);
+  }
+
+  return rows;
+}
+
+function readXlsxCellValue(body: string, type: string | undefined, sharedStrings: string[]) {
+  if (type === 's') {
+    const index = Number(body.match(/<v[^>]*>([\s\S]*?)<\/v>/)?.[1] ?? '');
+    return Number.isFinite(index) ? sharedStrings[index] ?? '' : '';
+  }
+
+  if (type === 'inlineStr') {
+    return Array.from(body.matchAll(/<t\b[^>]*>([\s\S]*?)<\/t>/g))
+      .map((part) => decodeXml(part[1] ?? ''))
+      .join('');
+  }
+
+  return decodeXml(body.match(/<v[^>]*>([\s\S]*?)<\/v>/)?.[1] ?? '');
+}
+
+function columnIndexFromCellRef(ref: string) {
+  const letters = ref.match(/^[A-Z]+/i)?.[0] ?? '';
+  return letters.split('').reduce((total, letter) => total * 26 + letter.toUpperCase().charCodeAt(0) - 64, 0) - 1;
+}
+
+function decodeXml(value: string) {
+  return value
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/&#x([0-9a-f]+);/gi, (_, hex: string) => String.fromCharCode(parseInt(hex, 16)))
+    .replace(/&#(\d+);/g, (_, code: string) => String.fromCharCode(Number(code)));
+}
+
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 function stripBom(text: string) {

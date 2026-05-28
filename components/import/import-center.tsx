@@ -853,7 +853,7 @@ function BybitUploadBox({
       <input
         className="sr-only"
         type="file"
-        accept=".csv,.xlsx,.xls,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
+        accept=".csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         onChange={(event) => onChange(event.target.files?.[0] ?? null)}
       />
     </label>

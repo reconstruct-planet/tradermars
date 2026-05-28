@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { strToU8, zipSync } from 'fflate';
 import {
   buildBybitFuturesImportAnalysis,
   bybitClosedPnlDuplicateKey,
@@ -27,6 +28,14 @@ describe('Bybit futures import adapter', () => {
     expect(parsed.rows[0]?.inferredSide).toBe('LONG');
     expect(parsed.rows[1]?.inferredSide).toBe('LONG');
     expect(parsed.rows[2]?.inferredSide).toBe('SHORT');
+  });
+
+  it('accepts XLSX worksheet exports for Bybit files', () => {
+    const rows = parseTabularBuffer('Bybit-AllPerp-ClosedPNL.xlsx', makeMinimalXlsx(closedPnlCsv()));
+    const detection = detectBybitFile({ fileName: 'Bybit-AllPerp-ClosedPNL.xlsx', rows });
+
+    expect(rows).toHaveLength(4);
+    expect(detection.detectedFileType).toBe('BYBIT_CLOSED_PNL');
   });
 
   it('detects Trade History, separates funding, trims IDs, and parses UTC times', () => {
@@ -225,3 +234,40 @@ function sum(values: number[]) {
   return values.reduce((total, value) => total + value, 0);
 }
 
+function makeMinimalXlsx(csv: string) {
+  const rows = csv.split('\n').map((line) => line.split(','));
+  const worksheetRows = rows
+    .map((cells, rowIndex) => {
+      const cellXml = cells
+        .map((cell, columnIndex) => {
+          const ref = `${columnLetters(columnIndex)}${rowIndex + 1}`;
+          return `<c r="${ref}" t="inlineStr"><is><t>${escapeXml(cell)}</t></is></c>`;
+        })
+        .join('');
+      return `<row r="${rowIndex + 1}">${cellXml}</row>`;
+    })
+    .join('');
+  const files: Record<string, Uint8Array> = {
+    '[Content_Types].xml': strToU8('<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/></Types>'),
+    'xl/workbook.xml': strToU8('<?xml version="1.0" encoding="UTF-8"?><workbook xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Sheet1" sheetId="1" r:id="rId1"/></sheets></workbook>'),
+    'xl/_rels/workbook.xml.rels': strToU8('<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/></Relationships>'),
+    'xl/worksheets/sheet1.xml': strToU8(`<?xml version="1.0" encoding="UTF-8"?><worksheet><sheetData>${worksheetRows}</sheetData></worksheet>`)
+  };
+
+  return Buffer.from(zipSync(files));
+}
+
+function columnLetters(index: number) {
+  let value = index + 1;
+  let letters = '';
+  while (value > 0) {
+    const remainder = (value - 1) % 26;
+    letters = String.fromCharCode(65 + remainder) + letters;
+    value = Math.floor((value - 1) / 26);
+  }
+  return letters;
+}
+
+function escapeXml(value: string) {
+  return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
