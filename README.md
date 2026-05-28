@@ -1,6 +1,6 @@
-# Edgefolio Trading Journal MVP
+# TradeHarbor Trading Journal MVP
 
-Edgefolio is an original trading journal and analytics SaaS MVP. It includes a public landing page, auth screens, an authenticated app shell, CSV import, trade CRUD, dashboards, charts, calendar review, notes, tags, plans, goals, settings, and a local rule-based AI-style insight engine.
+TradeHarbor is an original trading journal and analytics SaaS MVP. It includes a public landing page, auth screens, an authenticated app shell, CSV import, trade CRUD, dashboards, charts, calendar review, notes, tags, plans, goals, settings, and a local rule-based AI-style insight engine.
 
 ## Stack
 
@@ -51,7 +51,7 @@ Open `http://localhost:3000`.
 
 Demo login after seeding:
 
-- Email: `demo@edgefolio.app`
+- Email: `demo@tradeharbor.app`
 - Password: `demo1234`
 
 If the database is not configured, app pages still render read-only fallback demo data so the UI can be reviewed.

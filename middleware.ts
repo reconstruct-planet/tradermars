@@ -4,7 +4,7 @@ import { defaultLocale, isConfiguredLocale } from '@/lib/i18n-config';
 export function middleware(request: NextRequest) {
   const headers = new Headers(request.headers);
   const firstSegment = request.nextUrl.pathname.split('/').filter(Boolean)[0];
-  headers.set('x-edgefolio-locale', isConfiguredLocale(firstSegment) ? firstSegment : defaultLocale);
+  headers.set('x-tradeharbor-locale', isConfiguredLocale(firstSegment) ? firstSegment : defaultLocale);
 
   return NextResponse.next({
     request: {

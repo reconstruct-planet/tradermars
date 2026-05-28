@@ -186,7 +186,7 @@ export const demoDailyPlans: DailyPlanRecord[] = [
 export const demoTradingData: TradingData = {
   user: {
     name: 'Demo Trader',
-    email: 'demo@edgefolio.app',
+    email: 'demo@tradeharbor.app',
     timezone: 'America/New_York',
     plan: 'PRO'
   },

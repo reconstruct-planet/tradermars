@@ -1,10 +1,10 @@
 {
   "meta": {
-    "title": "Edgefolio | 交易日志与绩效分析",
+    "title": "TradeHarbor | 交易日志与绩效分析",
     "description": "用于导入交易、复盘绩效并提升决策质量的交易日志。"
   },
   "common": {
-    "productName": "Edgefolio",
+    "productName": "TradeHarbor",
     "pricing": "价格",
     "features": "功能",
     "resources": "资源",
@@ -103,7 +103,7 @@
     "importCenter": "导入中心",
     "settings": "设置",
     "searchPlaceholder": "搜索交易、笔记、标的",
-    "demoBanner": "当前显示演示数据。若要体验完整可写流程，请先初始化数据库并使用 demo@edgefolio.app / demo1234 登录。"
+    "demoBanner": "当前显示演示数据。若要体验完整可写流程，请先初始化数据库并使用 demo@tradeharbor.app / demo1234 登录。"
   },
   "landing": {
     "product": "产品",
@@ -116,12 +116,12 @@
     "metricWidgets": "分析组件",
     "sectionEyebrow": "复盘系统",
     "sectionTitle": "把交易历史转化为更好的交易行为。",
-    "sectionBody": "Edgefolio 将日志、分析、日历复盘和计划管理放在同一条工作流中，帮助你从每个交易日中提炼经验。",
+    "sectionBody": "TradeHarbor 将日志、分析、日历复盘和计划管理放在同一条工作流中，帮助你从每个交易日中提炼经验。",
     "importTitle": "先从清晰的 CSV 导入开始，之后再扩展券商同步。",
     "importBody": "上传 CSV，映射字段，预览数据，校验记录，只导入有效交易，并保留被拒绝行的原因。",
     "pricingTitle": "从聚焦的交易日志开始，在复盘流程成熟后再升级。",
     "faqTitle": "为透明的产品验证而构建。",
-    "footerNote": "交易存在风险。Edgefolio 不提供投资建议。",
+    "footerNote": "交易存在风险。TradeHarbor 不提供投资建议。",
     "features": {
       "journal": "交易日志",
       "analytics": "高级分析",
@@ -133,11 +133,11 @@
       "simulator": "模拟器占位"
     },
     "mockup": {
-      "desk": "Edgefolio ???",
+      "desk": "TradeHarbor ???",
       "review": "5?????",
       "csvHeader": "CSV ??",
-      "edgefolioField": "Edgefolio ??",
-      "copyright": "? 2026 Edgefolio. Original MVP brand and interface.",
+      "tradeharborField": "TradeHarbor ??",
+      "copyright": "© 2026 TradeHarbor. Original MVP brand and interface.",
       "bestSymbol": "Best symbol",
       "weakTag": "Weak tag",
       "bestDay": "Best day",
@@ -227,7 +227,7 @@
       "analytics": {
         "eyebrow": "Advanced analytics",
         "title": "Measure the quality of your decisions, not just the size of your winners.",
-        "body": "Edgefolio turns closed trades into a performance lab: equity, drawdown, win rate, profit factor, R multiple, symbol mix, session timing, and behavior tags stay connected.",
+        "body": "TradeHarbor turns closed trades into a performance lab: equity, drawdown, win rate, profit factor, R multiple, symbol mix, session timing, and behavior tags stay connected.",
         "points": [
           "Equity and daily P&L curves",
           "Symbol, strategy, tag, and session splits",
@@ -349,7 +349,7 @@
     },
     "faqs": {
       "0": {
-        "question": "Does Edgefolio connect to brokers today?",
+        "question": "Does TradeHarbor connect to brokers today?",
         "answer": "The MVP supports manual entry and CSV import with field mapping. Live broker sync is intentionally shown as a future integration path."
       },
       "1": {
@@ -362,7 +362,7 @@
       },
       "3": {
         "question": "Is this design based on another trading journal?",
-        "answer": "No. Edgefolio uses original copy, layout, components, palette, and mockups while serving the same broad product category."
+        "answer": "No. TradeHarbor uses original copy, layout, components, palette, and mockups while serving the same broad product category."
       },
       "4": {
         "question": "Can I use it without a configured database?",
@@ -419,7 +419,7 @@
   "auth": {
     "loginTitle": "登录",
     "signupTitle": "创建工作区",
-    "loginDescription": "使用 demo@edgefolio.app / demo1234 探索已生成的演示工作区。",
+    "loginDescription": "使用 demo@tradeharbor.app / demo1234 探索已生成的演示工作区。",
     "signupDescription": "从干净的交易日志开始，准备好后再导入交易。",
     "email": "邮箱",
     "password": "密码",
@@ -757,7 +757,7 @@
     "title": "向你的交易日志询问发生了什么变化。",
     "badge": "确定性分析助手",
     "subtitle": "通过本地意图分类器和经过审计的指标函数，基于真实交易数据回答问题。不调用外部 AI API。",
-    "askTitle": "询问 Edgefolio",
+    "askTitle": "询问 TradeHarbor",
     "askDescription": "试着向演示日志询问绩效、行为、风险和时间相关问题。",
     "placeholder": "询问标的、策略、回撤、错误或风险/回报...",
     "ask": "提问",

@@ -87,7 +87,7 @@ export function AppShell({ children, data }: { children: ReactNode; data: AppShe
     <div className="min-h-screen bg-background">
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-40 w-72 border-r bg-card transition-transform lg:translate-x-0',
+          'fixed inset-y-0 left-0 z-40 w-72 border-r bg-card/95 shadow-[16px_0_50px_hsl(var(--primary)/0.05)] backdrop-blur transition-transform lg:translate-x-0',
           open ? 'translate-x-0' : 'hidden -translate-x-full lg:block'
         )}
       >
@@ -106,7 +106,7 @@ export function AppShell({ children, data }: { children: ReactNode; data: AppShe
           t={t}
         />
         <div className="absolute bottom-0 left-0 right-0 border-t p-4">
-          <div className="rounded-md bg-secondary p-3 text-sm">
+          <div className="rounded-md border border-primary/10 bg-secondary/70 p-3 text-sm">
             <div className="flex items-center justify-between gap-2">
               <p className="truncate font-medium">{data.account.name}</p>
               <span className="inline-flex items-center gap-1 rounded-full bg-background px-2 py-1 text-[11px] font-medium text-primary">

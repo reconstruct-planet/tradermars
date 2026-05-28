@@ -6,7 +6,7 @@ import { prisma } from './prisma';
 import { loginSchema } from './validation';
 
 const demoAuthSecret = !process.env.DATABASE_URL
-  ? 'edgefolio-local-demo-secret-do-not-use-in-production'
+  ? 'tradeharbor-local-demo-secret-do-not-use-in-production'
   : undefined;
 
 export const authOptions: NextAuthOptions = {

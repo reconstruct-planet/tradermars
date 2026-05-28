@@ -1,10 +1,10 @@
 {
   "meta": {
-    "title": "Edgefolio | 트레이딩 저널과 성과 분석",
+    "title": "TradeHarbor | 트레이딩 저널과 성과 분석",
     "description": "거래를 가져오고 성과를 복기하며 의사결정 품질을 높이는 트레이딩 저널입니다."
   },
   "common": {
-    "productName": "Edgefolio",
+    "productName": "TradeHarbor",
     "pricing": "가격",
     "features": "기능",
     "resources": "자료",
@@ -103,7 +103,7 @@
     "importCenter": "가져오기 센터",
     "settings": "설정",
     "searchPlaceholder": "거래, 메모, 종목 검색",
-    "demoBanner": "현재 데모 데이터가 표시되고 있습니다. 전체 쓰기 흐름을 확인하려면 데이터베이스를 시드한 뒤 demo@edgefolio.app / demo1234로 로그인하세요."
+    "demoBanner": "현재 데모 데이터가 표시되고 있습니다. 전체 쓰기 흐름을 확인하려면 데이터베이스를 시드한 뒤 demo@tradeharbor.app / demo1234로 로그인하세요."
   },
   "landing": {
     "product": "제품",
@@ -121,7 +121,7 @@
     "importBody": "CSV 업로드, 컬럼 매핑, 행 검증, 미리보기, 유효 거래 저장, 거부 사유 기록까지 한 흐름으로 처리합니다.",
     "pricingTitle": "집중된 저널로 시작하고, 복기 흐름이 커지면 업그레이드하세요.",
     "faqTitle": "투명한 제품 검증을 위해 설계했습니다.",
-    "footerNote": "거래에는 위험이 따릅니다. Edgefolio는 투자 자문을 제공하지 않습니다.",
+    "footerNote": "거래에는 위험이 따릅니다. TradeHarbor는 투자 자문을 제공하지 않습니다.",
     "features": {
       "journal": "트레이딩 저널",
       "analytics": "고급 분석",
@@ -133,11 +133,11 @@
       "simulator": "시뮬레이터 준비 중"
     },
     "mockup": {
-      "desk": "Edgefolio 데스크",
+      "desk": "TradeHarbor 데스크",
       "review": "5월 성과 리뷰",
       "csvHeader": "CSV 헤더",
-      "edgefolioField": "Edgefolio 필드",
-      "copyright": "© 2026 Edgefolio. 독창적인 MVP 브랜드와 인터페이스.",
+      "tradeharborField": "TradeHarbor 필드",
+      "copyright": "© 2026 TradeHarbor. 독창적인 MVP 브랜드와 인터페이스.",
       "bestSymbol": "최고 종목",
       "weakTag": "약한 태그",
       "bestDay": "최고 요일",
@@ -227,7 +227,7 @@
       "analytics": {
         "eyebrow": "고급 분석",
         "title": "수익의 크기만이 아니라 의사결정의 품질을 측정하세요.",
-        "body": "Edgefolio는 종료된 거래를 성과 실험실로 바꿉니다. 자산, 낙폭, 승률, Profit Factor, R 배수, 종목 구성, 세션 타이밍, 행동 태그가 연결됩니다.",
+        "body": "TradeHarbor는 종료된 거래를 성과 실험실로 바꿉니다. 자산, 낙폭, 승률, Profit Factor, R 배수, 종목 구성, 세션 타이밍, 행동 태그가 연결됩니다.",
         "points": [
           "자산 곡선과 일별 P&L",
           "종목, 전략, 태그, 세션별 분해",
@@ -349,7 +349,7 @@
     },
     "faqs": {
       "0": {
-        "question": "현재 Edgefolio가 브로커와 연결되나요?",
+        "question": "현재 TradeHarbor가 브로커와 연결되나요?",
         "answer": "MVP는 필드 매핑이 있는 수동 입력과 CSV 가져오기를 지원합니다. 실시간 브로커 동기화는 이후 통합 경로로 명확히 표시합니다."
       },
       "1": {
@@ -362,7 +362,7 @@
       },
       "3": {
         "question": "이 디자인은 다른 트레이딩 저널을 기반으로 하나요?",
-        "answer": "아니요. Edgefolio는 같은 제품 범주를 다루지만 카피, 레이아웃, 컴포넌트, 팔레트, 목업을 독창적으로 구성합니다."
+        "answer": "아니요. TradeHarbor는 같은 제품 범주를 다루지만 카피, 레이아웃, 컴포넌트, 팔레트, 목업을 독창적으로 구성합니다."
       },
       "4": {
         "question": "데이터베이스 설정 없이 사용할 수 있나요?",
@@ -419,7 +419,7 @@
   "auth": {
     "loginTitle": "로그인",
     "signupTitle": "워크스페이스 만들기",
-    "loginDescription": "시드된 워크스페이스를 둘러보려면 demo@edgefolio.app / demo1234를 사용하세요.",
+    "loginDescription": "시드된 워크스페이스를 둘러보려면 demo@tradeharbor.app / demo1234를 사용하세요.",
     "signupDescription": "깨끗한 저널로 시작하고 준비되면 거래를 가져오세요.",
     "email": "이메일",
     "password": "비밀번호",
@@ -757,7 +757,7 @@
     "title": "저널에 무엇이 달라졌는지 물어보세요.",
     "badge": "결정론적 분석 어시스턴트",
     "subtitle": "로컬 의도 분류기와 검증된 지표 함수로 실제 거래 데이터를 분석합니다. 외부 AI 호출은 사용하지 않습니다.",
-    "askTitle": "Edgefolio에 질문하기",
+    "askTitle": "TradeHarbor에 질문하기",
     "askDescription": "데모 저널에 성과, 행동, 리스크, 시간대 관련 질문을 해보세요.",
     "placeholder": "종목, 전략, 낙폭, 실수, 리스크/리워드에 대해 질문하세요...",
     "ask": "질문",

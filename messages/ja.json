@@ -1,10 +1,10 @@
 {
   "meta": {
-    "title": "Edgefolio | トレードジャーナルと成績分析",
+    "title": "TradeHarbor | トレードジャーナルと成績分析",
     "description": "取引をインポートし、成績を振り返り、判断の質を高めるためのトレードジャーナルです。"
   },
   "common": {
-    "productName": "Edgefolio",
+    "productName": "TradeHarbor",
     "pricing": "料金",
     "features": "機能",
     "resources": "リソース",
@@ -103,7 +103,7 @@
     "importCenter": "インポートセンター",
     "settings": "設定",
     "searchPlaceholder": "取引、ノート、銘柄を検索",
-    "demoBanner": "デモデータを表示しています。書き込みを含む一連の流れを試すには、データベースをシードして demo@edgefolio.app / demo1234 でログインしてください。"
+    "demoBanner": "デモデータを表示しています。書き込みを含む一連の流れを試すには、データベースをシードして demo@tradeharbor.app / demo1234 でログインしてください。"
   },
   "landing": {
     "product": "プロダクト",
@@ -116,12 +116,12 @@
     "metricWidgets": "分析ウィジェット",
     "sectionEyebrow": "レビューシステム",
     "sectionTitle": "取引履歴を、より良いトレード行動につなげます。",
-    "sectionBody": "Edgefolioはジャーナル、分析、カレンダーレビュー、計画を一つの流れにまとめ、各セッションから学びやすくします。",
+    "sectionBody": "TradeHarborはジャーナル、分析、カレンダーレビュー、計画を一つの流れにまとめ、各セッションから学びやすくします。",
     "importTitle": "まずはCSVをきれいに取り込み、ブローカー同期は後から拡張できます。",
     "importBody": "CSVをアップロードし、列をマッピングし、行を確認して検証します。有効な取引だけをインポートし、除外された行は理由付きで残します。",
     "pricingTitle": "まずは集中できるジャーナルから。レビュー運用が広がったらアップグレードできます。",
     "faqTitle": "透明性のあるプロダクト検証のために設計されています。",
-    "footerNote": "取引にはリスクがあります。Edgefolioは金融アドバイスを提供しません。",
+    "footerNote": "取引にはリスクがあります。TradeHarborは金融アドバイスを提供しません。",
     "features": {
       "journal": "トレードジャーナル",
       "analytics": "高度な分析",
@@ -133,11 +133,11 @@
       "simulator": "シミュレーター予定"
     },
     "mockup": {
-      "desk": "Edgefolio???",
+      "desk": "TradeHarbor???",
       "review": "5?????????????",
       "csvHeader": "CSV????",
-      "edgefolioField": "Edgefolio?????",
-      "copyright": "? 2026 Edgefolio. Original MVP brand and interface.",
+      "tradeharborField": "TradeHarbor?????",
+      "copyright": "© 2026 TradeHarbor. Original MVP brand and interface.",
       "bestSymbol": "Best symbol",
       "weakTag": "Weak tag",
       "bestDay": "Best day",
@@ -227,7 +227,7 @@
       "analytics": {
         "eyebrow": "Advanced analytics",
         "title": "Measure the quality of your decisions, not just the size of your winners.",
-        "body": "Edgefolio turns closed trades into a performance lab: equity, drawdown, win rate, profit factor, R multiple, symbol mix, session timing, and behavior tags stay connected.",
+        "body": "TradeHarbor turns closed trades into a performance lab: equity, drawdown, win rate, profit factor, R multiple, symbol mix, session timing, and behavior tags stay connected.",
         "points": [
           "Equity and daily P&L curves",
           "Symbol, strategy, tag, and session splits",
@@ -349,7 +349,7 @@
     },
     "faqs": {
       "0": {
-        "question": "Does Edgefolio connect to brokers today?",
+        "question": "Does TradeHarbor connect to brokers today?",
         "answer": "The MVP supports manual entry and CSV import with field mapping. Live broker sync is intentionally shown as a future integration path."
       },
       "1": {
@@ -362,7 +362,7 @@
       },
       "3": {
         "question": "Is this design based on another trading journal?",
-        "answer": "No. Edgefolio uses original copy, layout, components, palette, and mockups while serving the same broad product category."
+        "answer": "No. TradeHarbor uses original copy, layout, components, palette, and mockups while serving the same broad product category."
       },
       "4": {
         "question": "Can I use it without a configured database?",
@@ -419,7 +419,7 @@
   "auth": {
     "loginTitle": "ログイン",
     "signupTitle": "ワークスペースを作成",
-    "loginDescription": "シード済みワークスペースを試すには demo@edgefolio.app / demo1234 を使用してください。",
+    "loginDescription": "シード済みワークスペースを試すには demo@tradeharbor.app / demo1234 を使用してください。",
     "signupDescription": "クリーンなジャーナルから始め、準備ができたら取引をインポートできます。",
     "email": "メールアドレス",
     "password": "パスワード",
@@ -757,7 +757,7 @@
     "title": "ジャーナルに変化の理由を聞いてみましょう。",
     "badge": "決定論的な分析アシスタント",
     "subtitle": "ローカルの意図分類器と検証済みの指標関数で、実際の取引データに質問できます。外部AI APIは呼び出しません。",
-    "askTitle": "Edgefolioに質問",
+    "askTitle": "TradeHarborに質問",
     "askDescription": "デモジャーナルに対して、成績、行動、リスク、時間帯に関する質問を試せます。",
     "placeholder": "銘柄、戦略、ドローダウン、ミス、リスク/リワードについて質問...",
     "ask": "質問",

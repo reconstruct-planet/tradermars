@@ -1,10 +1,10 @@
 {
   "meta": {
-    "title": "Edgefolio | Trading Journal and Performance Analytics",
-    "description": "A trading journal for importing trades, reviewing performance, and improving decision quality."
+    "title": "TradeHarbor | Trading Journal and Performance Analytics",
+    "description": "A disciplined trading journal for importing trades, reviewing behavior, and improving decision quality."
   },
   "common": {
-    "productName": "Edgefolio",
+    "productName": "TradeHarbor",
     "pricing": "Pricing",
     "features": "Features",
     "resources": "Resources",
@@ -103,25 +103,25 @@
     "importCenter": "Import center",
     "settings": "Settings",
     "searchPlaceholder": "Search trades, notes, symbols",
-    "demoBanner": "Demo data is being shown. Seed the database and sign in as demo@edgefolio.app / demo1234 to try the full writable workflow."
+    "demoBanner": "Demo data is being shown. Seed the database and sign in as demo@tradeharbor.app / demo1234 to try the full writable workflow."
   },
   "landing": {
     "product": "Product",
-    "heroBadge": "AI-assisted trading journal and performance analytics",
-    "heroTitle": "Review every trade, habit, and risk pattern with a clearer process.",
-    "heroSubtitle": "Import trades, capture the decision, spot behavioral mistakes, and turn performance review into a repeatable routine.",
+    "heroBadge": "Harbor every trade. Review every decision.",
+    "heroTitle": "TradeHarbor trading journal for disciplined performance review.",
+    "heroSubtitle": "Journal trades, analyze performance, review calendar context, import CSVs, track goals, and surface behavioral patterns in one calm workspace.",
     "metricTraders": "trader profiles modeled",
     "metricTrades": "trades analyzed",
     "metricMarkets": "markets supported",
     "metricWidgets": "analytics widgets",
     "sectionEyebrow": "Review system",
-    "sectionTitle": "Move from trade history to better trading behavior.",
-    "sectionBody": "Edgefolio keeps journaling, analytics, calendar review, and planning in one workflow so each session is easier to learn from.",
+    "sectionTitle": "Move from trade history to disciplined review.",
+    "sectionBody": "TradeHarbor keeps every entry, metric, note, calendar day, and plan connected so each session becomes easier to learn from.",
     "importTitle": "Start with clean CSV imports. Add broker sync later.",
     "importBody": "Upload a CSV, map columns, preview rows, validate records, import valid trades, and keep rejected rows with clear reasons.",
     "pricingTitle": "Start with a focused journal. Upgrade when your review process grows.",
-    "faqTitle": "Built for transparent product validation.",
-    "footerNote": "Trading involves risk. Edgefolio does not provide financial advice.",
+    "faqTitle": "Built for transparent, disciplined review.",
+    "footerNote": "Trading involves risk. TradeHarbor does not provide financial advice.",
     "features": {
       "journal": "Trading journal",
       "analytics": "Advanced analytics",
@@ -133,11 +133,11 @@
       "simulator": "Simulator placeholder"
     },
     "mockup": {
-      "desk": "Edgefolio desk",
+      "desk": "TradeHarbor command desk",
       "review": "May performance review",
       "csvHeader": "CSV header",
-      "edgefolioField": "Edgefolio field",
-      "copyright": "? 2026 Edgefolio. Original MVP brand and interface.",
+      "tradeharborField": "TradeHarbor field",
+      "copyright": "© 2026 TradeHarbor. Original MVP brand and interface.",
       "bestSymbol": "Best symbol",
       "weakTag": "Weak tag",
       "bestDay": "Best day",
@@ -227,7 +227,7 @@
       "analytics": {
         "eyebrow": "Advanced analytics",
         "title": "Measure the quality of your decisions, not just the size of your winners.",
-        "body": "Edgefolio turns closed trades into a performance lab: equity, drawdown, win rate, profit factor, R multiple, symbol mix, session timing, and behavior tags stay connected.",
+        "body": "TradeHarbor turns closed trades into a disciplined performance lab: equity, drawdown, win rate, profit factor, R multiple, symbol mix, session timing, and behavior tags stay connected.",
         "points": [
           "Equity and daily P&L curves",
           "Symbol, strategy, tag, and session splits",
@@ -349,7 +349,7 @@
     },
     "faqs": {
       "0": {
-        "question": "Does Edgefolio connect to brokers today?",
+        "question": "Does TradeHarbor connect to brokers today?",
         "answer": "The MVP supports manual entry and CSV import with field mapping. Live broker sync is intentionally shown as a future integration path."
       },
       "1": {
@@ -362,7 +362,7 @@
       },
       "3": {
         "question": "Is this design based on another trading journal?",
-        "answer": "No. Edgefolio uses original copy, layout, components, palette, and mockups while serving the same broad product category."
+        "answer": "No. TradeHarbor uses original copy, layout, components, palette, and mockups while serving the same broad product category."
       },
       "4": {
         "question": "Can I use it without a configured database?",
@@ -419,7 +419,7 @@
   "auth": {
     "loginTitle": "Log in",
     "signupTitle": "Create your workspace",
-    "loginDescription": "Use demo@edgefolio.app / demo1234 to explore the seeded workspace.",
+    "loginDescription": "Use demo@tradeharbor.app / demo1234 to explore the seeded workspace.",
     "signupDescription": "Start with a clean journal and import trades when you are ready.",
     "email": "Email",
     "password": "Password",
@@ -757,7 +757,7 @@
     "title": "Ask your journal what changed.",
     "badge": "Deterministic analytics assistant",
     "subtitle": "Ask questions about real trade data using a local intent classifier and audited metric functions. No external AI calls are made.",
-    "askTitle": "Ask Edgefolio",
+    "askTitle": "Ask TradeHarbor",
     "askDescription": "Try questions about performance, behavior, risk, and timing against the demo journal.",
     "placeholder": "Ask about symbols, strategies, drawdown, mistakes, or risk/reward...",
     "ask": "Ask",

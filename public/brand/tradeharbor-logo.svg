@@ -1,0 +1,10 @@
+<svg width="760" height="180" viewBox="0 0 760 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="8" y="8" width="164" height="164" rx="36" fill="#07161A"/>
+  <path d="M90 32 142 62v56L90 148 38 118V62L90 32Z" stroke="#E8F8F4" stroke-width="11" stroke-linejoin="round"/>
+  <path d="M66 68v44M114 68v44" stroke="#E8F8F4" stroke-width="12" stroke-linecap="round"/>
+  <path d="m66 108 20-20.5 13.5 12L118 74" stroke="#F2B84B" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="118" cy="74" r="7.5" fill="#F2B84B"/>
+  <text x="210" y="105" fill="#07161A" font-family="Arial, Helvetica, sans-serif" font-size="64" font-weight="700">Trade</text>
+  <text x="390" y="105" fill="#0B6B67" font-family="Arial, Helvetica, sans-serif" font-size="64" font-weight="700">Harbor</text>
+  <text x="214" y="139" fill="#55636B" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="500">Trading journal and performance analytics</text>
+</svg>

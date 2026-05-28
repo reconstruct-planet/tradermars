@@ -65,16 +65,17 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-10">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[linear-gradient(180deg,hsl(var(--background)),hsl(var(--secondary)/0.42))] px-4 py-10">
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,hsl(var(--primary)/0.06)_1px,transparent_1px),linear-gradient(180deg,hsl(var(--primary)/0.05)_1px,transparent_1px)] bg-[length:72px_72px]" />
       <div className="absolute right-4 top-4 flex items-center gap-2">
         <LanguageSelector className="w-32" />
         <ThemeToggle />
       </div>
-      <div className="w-full max-w-md">
+      <div className="relative w-full max-w-md">
         <div className="mb-6 flex justify-center">
           <Brand className="text-xl" />
         </div>
-        <Card>
+        <Card className="border-primary/10 bg-card/95 shadow-xl shadow-primary/10 backdrop-blur">
           <CardHeader>
             <CardTitle>{mode === 'login' ? t('auth.loginTitle') : t('auth.signupTitle')}</CardTitle>
             <CardDescription>
@@ -93,7 +94,7 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
               ) : null}
               <div>
                 <label className="mb-2 block text-sm font-medium">{t('auth.email')}</label>
-                <Input name="email" type="email" required defaultValue={mode === 'login' ? 'demo@edgefolio.app' : ''} />
+                <Input name="email" type="email" required defaultValue={mode === 'login' ? 'demo@tradeharbor.app' : ''} />
               </div>
               <div>
                 <label className="mb-2 block text-sm font-medium">{t('auth.password')}</label>

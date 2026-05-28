@@ -47,8 +47,8 @@ export function PricingPage() {
   const { locale, t } = useI18n();
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-40 border-b bg-background/90 backdrop-blur">
+    <div className="min-h-screen bg-[linear-gradient(180deg,hsl(var(--background)),hsl(var(--secondary)/0.34)_52%,hsl(var(--background)))]">
+      <header className="sticky top-0 z-40 border-b bg-background/88 backdrop-blur-xl">
         <div className="container flex h-16 items-center gap-3">
           <Brand />
           <nav className="ml-6 hidden items-center gap-4 text-sm text-muted-foreground md:flex">
@@ -69,7 +69,7 @@ export function PricingPage() {
       <main>
         <section className="container py-16 md:py-24">
           <div className="mx-auto max-w-3xl text-center">
-            <Badge variant="secondary" className="mb-4">{t('pricing.badge')}</Badge>
+            <Badge variant="secondary" className="mb-4 border-primary/15 bg-primary/10 text-primary">{t('pricing.badge')}</Badge>
             <h1 className="text-4xl font-semibold tracking-normal md:text-6xl">{t('pricing.title')}</h1>
             <p className="mt-5 text-base leading-7 text-muted-foreground md:text-lg">
               {t('pricing.subtitle')}
@@ -77,7 +77,7 @@ export function PricingPage() {
           </div>
 
           <div className="mt-8 flex justify-center">
-            <div className="inline-flex rounded-lg border bg-card p-1">
+            <div className="inline-flex rounded-lg border bg-card/90 p-1 shadow-sm">
               {(['monthly', 'yearly'] as const).map((item) => (
                 <button
                   key={item}
@@ -96,7 +96,7 @@ export function PricingPage() {
               const price = getPlanPrice(planId, billing);
               const highlighted = planId === 'PRO';
               return (
-                <Card key={planId} className={highlighted ? 'shadow-xl ring-2 ring-primary/30' : ''}>
+                <Card key={planId} className={highlighted ? 'border-primary/30 shadow-xl shadow-primary/10 ring-2 ring-primary/25' : 'bg-card/90'}>
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <CardTitle>{t(`common.${plan.name.toLowerCase()}`)}</CardTitle>
@@ -133,7 +133,7 @@ export function PricingPage() {
           </div>
         </section>
 
-        <section className="border-y bg-secondary/30 py-14">
+        <section className="border-y bg-secondary/35 py-14">
           <div className="container">
             <div className="mb-6 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
               <div>
@@ -142,7 +142,7 @@ export function PricingPage() {
               </div>
               <Badge variant="outline">{t('pricing.stripePlaceholder')}</Badge>
             </div>
-            <div className="overflow-hidden rounded-lg border bg-card">
+            <div className="overflow-hidden rounded-lg border bg-card/95 shadow-sm">
               <div className="grid grid-cols-4 bg-muted px-4 py-3 text-sm font-semibold">
                 <span>{t('common.feature')}</span>
                 {planOrder.map((plan) => <span key={plan} className="text-center">{t(`common.${planDefinitions[plan].name.toLowerCase()}`)}</span>)}

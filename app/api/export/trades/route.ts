@@ -46,7 +46,7 @@ export async function GET() {
   return new NextResponse(lines.join('\n'), {
     headers: {
       'Content-Type': 'text/csv; charset=utf-8',
-      'Content-Disposition': 'attachment; filename="edgefolio-trades.csv"'
+      'Content-Disposition': 'attachment; filename="tradeharbor-trades.csv"'
     }
   });
 }

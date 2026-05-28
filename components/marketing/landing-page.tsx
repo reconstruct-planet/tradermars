@@ -190,8 +190,8 @@ export function MarketingLandingPage() {
   }
 
   return (
-    <div className="min-h-screen overflow-hidden bg-[#f6faf9] text-[#101623] dark:bg-[#070b12] dark:text-slate-50">
-      <div className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(circle_at_20%_0%,rgba(13,148,136,0.16),transparent_32%),radial-gradient(circle_at_85%_8%,rgba(245,158,11,0.12),transparent_30%),linear-gradient(180deg,rgba(255,255,255,0.8),rgba(241,245,249,0.28))] dark:bg-[radial-gradient(circle_at_18%_0%,rgba(20,184,166,0.12),transparent_34%),radial-gradient(circle_at_84%_12%,rgba(245,158,11,0.11),transparent_28%),linear-gradient(180deg,rgba(15,23,42,0.25),rgba(2,6,23,0))]" />
+    <div className="min-h-screen overflow-hidden bg-[#f7faf7] text-[#0b1518] dark:bg-[#07161a] dark:text-slate-50">
+      <div className="pointer-events-none fixed inset-0 -z-10 bg-[linear-gradient(180deg,rgba(255,255,255,0.9),rgba(234,243,240,0.46)_46%,rgba(247,250,247,0.9)),linear-gradient(90deg,rgba(11,107,103,0.06)_1px,transparent_1px),linear-gradient(180deg,rgba(11,107,103,0.05)_1px,transparent_1px)] bg-[length:auto,72px_72px,72px_72px] dark:bg-[linear-gradient(180deg,rgba(12,34,40,0.72),rgba(7,22,26,0.96)),linear-gradient(90deg,rgba(232,248,244,0.06)_1px,transparent_1px),linear-gradient(180deg,rgba(232,248,244,0.05)_1px,transparent_1px)]" />
       <MarketingHeader />
 
       <main>
@@ -227,7 +227,7 @@ function MarketingHeader() {
   const featureItems = getFeatureItems(t);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-900/10 bg-[#f6faf9]/88 backdrop-blur-xl dark:border-white/10 dark:bg-[#070b12]/86">
+    <header className="sticky top-0 z-40 border-b border-slate-900/10 bg-[#f7faf7]/88 backdrop-blur-xl dark:border-white/10 dark:bg-[#07161a]/88">
       <div className="container flex min-h-16 items-center gap-3 py-2">
         <Brand className="shrink-0" />
         <nav className="ml-4 hidden items-center gap-1 lg:flex">
@@ -242,7 +242,7 @@ function MarketingHeader() {
           <Button asChild variant="ghost" className="hidden sm:inline-flex">
             <Link href={`/${locale}/login`}>{t('common.login')}</Link>
           </Button>
-          <Button asChild className="bg-[#102a43] text-white hover:bg-[#183b56] dark:bg-teal-300 dark:text-slate-950 dark:hover:bg-teal-200">
+          <Button asChild className="bg-[#0a3436] text-white hover:bg-[#123f42] dark:bg-teal-300 dark:text-slate-950 dark:hover:bg-teal-200">
             <Link href={`/${locale}/signup`}>
               {t('common.startFree')}
               <ArrowRight className="ml-2 h-4 w-4" />
@@ -306,7 +306,7 @@ function HeroSection() {
           {t('landing.heroSubtitle')}
         </p>
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-          <Button asChild size="lg" className="bg-[#102a43] text-white hover:bg-[#183b56] dark:bg-teal-300 dark:text-slate-950 dark:hover:bg-teal-200">
+          <Button asChild size="lg" className="bg-[#0a3436] text-white hover:bg-[#123f42] dark:bg-teal-300 dark:text-slate-950 dark:hover:bg-teal-200">
             <Link href={`/${locale}/signup`}>
               {t('common.startFree')}
               <ArrowRight className="ml-2 h-4 w-4" />
@@ -335,7 +335,7 @@ function HeroSection() {
       </div>
 
       <div className="relative">
-        <div className="absolute -inset-4 rounded-[2rem] bg-[conic-gradient(from_210deg,rgba(20,184,166,0.28),rgba(245,158,11,0.2),rgba(37,99,235,0.18),rgba(20,184,166,0.28))] opacity-70 blur-2xl" />
+        <div className="absolute -inset-4 rounded-[2rem] bg-[linear-gradient(135deg,rgba(11,107,103,0.22),rgba(242,184,75,0.16)_48%,rgba(12,34,40,0.18))] opacity-80 blur-2xl" />
         <DashboardMockup />
       </div>
     </section>
@@ -400,7 +400,7 @@ function FeatureSection({ feature, flipped }: { feature: FeatureBlock; flipped: 
   return (
     <section id={feature.mockup} className={`grid items-center gap-8 lg:grid-cols-2 ${flipped ? 'lg:[&>*:first-child]:order-2' : ''}`}>
       <div>
-        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#102a43] text-white dark:bg-teal-300 dark:text-slate-950">
+        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#0a3436] text-white dark:bg-teal-300 dark:text-slate-950">
           <Icon className="h-6 w-6" />
         </div>
         <p className="mt-6 text-sm font-semibold uppercase text-teal-700 dark:text-teal-300">{feature.eyebrow}</p>
@@ -424,8 +424,8 @@ function DashboardMockup() {
   const { t } = useI18n();
 
   return (
-    <div className="relative rounded-2xl border border-slate-900/10 bg-[#0d1726] p-3 shadow-2xl dark:border-white/15">
-      <div className="rounded-xl border border-white/10 bg-[#101b2d] p-4 text-white">
+    <div className="relative rounded-2xl border border-slate-900/10 bg-[#07161a] p-3 shadow-2xl dark:border-white/15">
+      <div className="rounded-xl border border-white/10 bg-[#0c2228] p-4 text-white">
         <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-4">
           <div>
             <p className="text-sm text-teal-200">{t('landing.mockup.desk')}</p>
@@ -589,7 +589,7 @@ function AiMockup() {
       <div className="rounded-lg border bg-slate-50 p-3 text-sm dark:border-white/10 dark:bg-white/[0.04]">
         {t('landing.mockup.aiQuestion')}
       </div>
-      <div className="rounded-lg bg-[#102a43] p-4 text-sm text-white dark:bg-teal-300 dark:text-slate-950">
+      <div className="rounded-lg bg-[#0a3436] p-4 text-sm text-white dark:bg-teal-300 dark:text-slate-950">
         {t('landing.mockup.aiAnswer')}
       </div>
       <div className="grid grid-cols-3 gap-2 text-xs">
@@ -768,7 +768,7 @@ function ImportMockup() {
       </div>
       <div className="mt-4 overflow-hidden rounded-lg border dark:border-white/10">
         <div className="grid grid-cols-3 bg-slate-100 px-3 py-2 text-xs uppercase text-slate-500 dark:bg-white/[0.05] dark:text-slate-400">
-          <span>{t('landing.mockup.csvHeader')}</span><span>{t('landing.mockup.edgefolioField')}</span><span>{t('common.status')}</span>
+          <span>{t('landing.mockup.csvHeader')}</span><span>{t('landing.mockup.tradeharborField')}</span><span>{t('common.status')}</span>
         </div>
         {[
           [t('landing.mockup.ticker'), 'symbol', t('landing.mockup.mapped')],
@@ -809,7 +809,7 @@ function PricingSection({
           {(['monthly', 'yearly'] as const).map((item) => (
             <button
               key={item}
-              className={`h-10 rounded-md px-5 text-sm font-medium transition-colors ${billing === item ? 'bg-[#102a43] text-white dark:bg-teal-300 dark:text-slate-950' : 'text-slate-600 hover:text-slate-950 dark:text-slate-300 dark:hover:text-white'}`}
+              className={`h-10 rounded-md px-5 text-sm font-medium transition-colors ${billing === item ? 'bg-[#0a3436] text-white dark:bg-teal-300 dark:text-slate-950' : 'text-slate-600 hover:text-slate-950 dark:text-slate-300 dark:hover:text-white'}`}
               onClick={() => setBilling(item)}
             >
               {item === 'monthly' ? t('common.monthly') : t('common.yearly')}
@@ -832,7 +832,7 @@ function PricingSection({
                 <span className="pb-2 text-sm text-slate-500 dark:text-slate-400">{t('landing.perMonth')}</span>
               </div>
               <p className="mt-4 min-h-12 text-sm text-slate-600 dark:text-slate-300">{plan.summary}</p>
-              <Button asChild className={`mt-6 w-full ${index === 1 ? 'bg-[#102a43] text-white hover:bg-[#183b56] dark:bg-teal-300 dark:text-slate-950 dark:hover:bg-teal-200' : ''}`} variant={index === 1 ? 'default' : 'outline'}>
+              <Button asChild className={`mt-6 w-full ${index === 1 ? 'bg-[#0a3436] text-white hover:bg-[#123f42] dark:bg-teal-300 dark:text-slate-950 dark:hover:bg-teal-200' : ''}`} variant={index === 1 ? 'default' : 'outline'}>
                 <Link href={`/${locale}/signup`}>{plan.tier === 'free' ? t('common.startFree') : t('pricing.choosePlan', { plan: plan.name })}</Link>
               </Button>
             </CardContent>
@@ -907,7 +907,7 @@ function MarketingFooter() {
   ];
 
   return (
-    <footer className="border-t border-slate-900/10 bg-[#0d1726] py-12 text-slate-300 dark:border-white/10">
+    <footer className="border-t border-slate-900/10 bg-[#07161a] py-12 text-slate-300 dark:border-white/10">
       <div className="container grid gap-8 md:grid-cols-[1.2fr_0.8fr_0.8fr_0.8fr]">
         <div>
           <Brand className="text-white" />

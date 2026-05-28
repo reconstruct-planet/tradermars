@@ -18,7 +18,9 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   if (!isLocale(locale)) return {};
   const dictionary = await getMessages(locale, ['meta']);
   return {
-    title: dictionary.meta?.title,
+    title: {
+      absolute: dictionary.meta?.title ?? 'TradeHarbor'
+    },
     description: dictionary.meta?.description,
     alternates: {
       languages: Object.fromEntries(locales.map((item) => [item, `/${item}`]))

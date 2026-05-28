@@ -10,7 +10,9 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   if (!isLocale(locale)) return {};
   const dictionary = await getMessages(locale, ['common', 'pricing']);
   return {
-    title: `${dictionary.common?.pricing} | Edgefolio`,
+    title: {
+      absolute: `${dictionary.common?.pricing} | ${dictionary.common?.productName ?? 'TradeHarbor'}`
+    },
     description: dictionary.pricing?.subtitle,
     alternates: {
       languages: Object.fromEntries(locales.map((item) => [item, `/${item}/pricing`]))

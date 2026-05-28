@@ -1,6 +1,6 @@
 # Production Deployment
 
-Edgefolio needs a server-capable host for the full product. Do not deploy it as a static GitHub Pages site if you want auth, trade writes, CSV imports, Prisma, and API routes to keep working.
+TradeHarbor needs a server-capable host for the full product. Do not deploy it as a static GitHub Pages site if you want auth, trade writes, CSV imports, Prisma, and API routes to keep working.
 
 ## Recommended Path: Vercel + PostgreSQL
 
