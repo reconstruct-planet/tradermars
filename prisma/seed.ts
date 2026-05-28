@@ -38,6 +38,7 @@ type SeedUser = {
   plan: Plan;
   account: SeedAccount;
   importFilename: string;
+  seedDemoData: boolean;
 };
 
 const demoSeedUser: SeedUser = {
@@ -52,7 +53,8 @@ const demoSeedUser: SeedUser = {
     baseCurrency: demoTradingData.account.baseCurrency,
     startingBalance: demoTradingData.account.startingBalance
   },
-  importFilename: 'tradeharbor-demo-seed.csv'
+  importFilename: 'tradeharbor-demo-seed.csv',
+  seedDemoData: true
 };
 
 const eliteTestUsers: SeedUser[] = Array.from({ length: 5 }, (_, index) => {
@@ -70,7 +72,8 @@ const eliteTestUsers: SeedUser[] = Array.from({ length: 5 }, (_, index) => {
       baseCurrency: 'USD',
       startingBalance: 50000
     },
-    importFilename: `tradeharbor-elite-test-${number}.csv`
+    importFilename: `tradeharbor-elite-test-${number}.csv`,
+    seedDemoData: false
   };
 });
 
@@ -115,6 +118,12 @@ async function seedTradingUser(seedUser: SeedUser, passwordHash: string) {
       subscriptionStatus: seedUser.plan === 'ELITE' ? 'active' : null
     }
   });
+
+  if (!seedUser.seedDemoData) {
+    await ensureRealUserWorkspace(user.id, seedUser);
+    console.log(`Seeded real ${seedUser.plan} workspace for ${seedUser.email}`);
+    return;
+  }
 
   await prisma.importBatch.deleteMany({ where: { userId: user.id } });
   await prisma.note.deleteMany({ where: { userId: user.id } });
@@ -272,6 +281,46 @@ async function seedTradingUser(seedUser: SeedUser, passwordHash: string) {
   }
 
   console.log(`Seeded ${demoTrades.length} trades for ${seedUser.email} (${seedUser.plan})`);
+}
+
+async function ensureRealUserWorkspace(userId: string, seedUser: SeedUser) {
+  const account = await prisma.account.findFirst({
+    where: { userId },
+    select: { id: true }
+  });
+
+  if (!account) {
+    await prisma.account.create({
+      data: {
+        userId,
+        name: seedUser.account.name,
+        broker: 'Manual import',
+        baseCurrency: seedUser.account.baseCurrency,
+        startingBalance: seedUser.account.startingBalance
+      }
+    });
+  }
+
+  const template = await prisma.checklistTemplate.findFirst({
+    where: { userId },
+    select: { id: true }
+  });
+
+  if (!template) {
+    await prisma.checklistTemplate.create({
+      data: {
+        userId,
+        name: 'Daily trading plan',
+        items: {
+          create: [
+            { label: 'Macro calendar reviewed', sortOrder: 1, isRequired: true },
+            { label: 'Risk limit set', sortOrder: 2, isRequired: true },
+            { label: 'A+ setups identified', sortOrder: 3, isRequired: false }
+          ]
+        }
+      }
+    });
+  }
 }
 
 function mapChecklistState(state: Record<string, boolean> | null, itemIdMap: Map<string, string>) {

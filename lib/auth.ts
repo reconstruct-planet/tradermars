@@ -83,9 +83,97 @@ async function authorizeEliteTestAccount(email: string, password: string) {
   const account = await validateEliteTestAccount(email, password);
   if (!account) return null;
 
+  const user = await ensureEliteTestUser(account).catch(() => null);
+
   return {
-    id: account.id,
+    id: user?.id ?? account.id,
     email: account.email,
-    name: account.name
+    name: user?.name ?? account.name
   };
+}
+
+async function ensureEliteTestUser(account: Awaited<ReturnType<typeof validateEliteTestAccount>>) {
+  if (!account || !process.env.DATABASE_URL) return null;
+
+  const user = await prisma.user.upsert({
+    where: { email: account.email },
+    update: {
+      name: account.name,
+      passwordHash: account.passwordHash,
+      timezone: 'America/New_York',
+      plan: 'ELITE',
+      subscriptionStatus: 'active'
+    },
+    create: {
+      name: account.name,
+      email: account.email,
+      passwordHash: account.passwordHash,
+      timezone: 'America/New_York',
+      plan: 'ELITE',
+      subscriptionStatus: 'active',
+      accounts: {
+        create: {
+          name: `${account.name} account`,
+          broker: 'Manual import',
+          baseCurrency: 'USD',
+          startingBalance: 50000
+        }
+      },
+      checklistTemplates: {
+        create: {
+          name: 'Daily trading plan',
+          items: {
+            create: [
+              { label: 'Macro calendar reviewed', sortOrder: 1, isRequired: true },
+              { label: 'Risk limit set', sortOrder: 2, isRequired: true },
+              { label: 'A+ setups identified', sortOrder: 3, isRequired: false }
+            ]
+          }
+        }
+      }
+    }
+  });
+
+  await ensureEliteTestAccountWorkspace(user.id, account.name);
+  return user;
+}
+
+async function ensureEliteTestAccountWorkspace(userId: string, name: string) {
+  const account = await prisma.account.findFirst({
+    where: { userId },
+    select: { id: true }
+  });
+
+  if (!account) {
+    await prisma.account.create({
+      data: {
+        userId,
+        name: `${name} account`,
+        broker: 'Manual import',
+        baseCurrency: 'USD',
+        startingBalance: 50000
+      }
+    });
+  }
+
+  const checklistTemplate = await prisma.checklistTemplate.findFirst({
+    where: { userId },
+    select: { id: true }
+  });
+
+  if (!checklistTemplate) {
+    await prisma.checklistTemplate.create({
+      data: {
+        userId,
+        name: 'Daily trading plan',
+        items: {
+          create: [
+            { label: 'Macro calendar reviewed', sortOrder: 1, isRequired: true },
+            { label: 'Risk limit set', sortOrder: 2, isRequired: true },
+            { label: 'A+ setups identified', sortOrder: 3, isRequired: false }
+          ]
+        }
+      }
+    });
+  }
 }

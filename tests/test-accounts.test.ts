@@ -27,11 +27,14 @@ describe('elite test accounts', () => {
     await expect(validateEliteTestAccount(eliteTestAccounts[0].email, passwords[1])).resolves.toBeNull();
   });
 
-  it('uses elite plan fallback data for test accounts', () => {
+  it('uses empty elite workspace fallback data for test accounts', () => {
     const data = makeEliteTestTradingData(eliteTestAccounts[4].email);
 
     expect(data.user.email).toBe('elite5@tradeharbor.app');
     expect(data.user.plan).toBe('ELITE');
-    expect(data.trades.length).toBeGreaterThan(0);
+    expect(data.trades).toEqual([]);
+    expect(data.notes).toEqual([]);
+    expect(data.goals).toEqual([]);
+    expect(data.isDemoFallback).toBe(false);
   });
 });

@@ -1,5 +1,4 @@
 import bcrypt from 'bcryptjs';
-import { demoTradingData } from './demo-data';
 import type { TradingData } from './types';
 
 export const eliteTestAccounts = [
@@ -53,17 +52,25 @@ export function makeEliteTestTradingData(email: EliteTestEmail): TradingData {
   const account = findEliteTestAccount(email);
 
   return {
-    ...demoTradingData,
     user: {
-      ...demoTradingData.user,
       name: account?.name ?? 'Elite Test Trader',
       email,
+      timezone: 'America/New_York',
       plan: 'ELITE'
     },
     account: {
-      ...demoTradingData.account,
-      name: account ? `${account.name} account` : 'Elite test account'
+      id: account?.id ? `${account.id}-account` : 'elite-test-account',
+      name: account ? `${account.name} account` : 'Elite test account',
+      broker: 'Manual import',
+      baseCurrency: 'USD',
+      startingBalance: 50000
     },
-    isDemoFallback: true
+    trades: [],
+    tags: [],
+    notes: [],
+    goals: [],
+    dailyPlans: [],
+    checklistTemplates: [],
+    isDemoFallback: false
   };
 }
