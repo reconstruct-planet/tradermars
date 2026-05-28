@@ -134,8 +134,31 @@ async function ensureEliteTestUser(account: Awaited<ReturnType<typeof validateEl
     }
   });
 
+  await removeSeededEliteDemoData(user.id);
   await ensureEliteTestAccountWorkspace(user.id, account.name);
   return user;
+}
+
+async function removeSeededEliteDemoData(userId: string) {
+  const seededBatch = await prisma.importBatch.findFirst({
+    where: {
+      userId,
+      filename: {
+        startsWith: 'tradeharbor-elite-test-'
+      }
+    },
+    select: { id: true }
+  });
+
+  if (!seededBatch) return;
+
+  await prisma.note.deleteMany({ where: { userId } });
+  await prisma.trade.deleteMany({ where: { userId } });
+  await prisma.importBatch.deleteMany({ where: { userId } });
+  await prisma.dailyPlan.deleteMany({ where: { userId } });
+  await prisma.checklistTemplate.deleteMany({ where: { userId } });
+  await prisma.goal.deleteMany({ where: { userId } });
+  await prisma.tag.deleteMany({ where: { userId } });
 }
 
 async function ensureEliteTestAccountWorkspace(userId: string, name: string) {
