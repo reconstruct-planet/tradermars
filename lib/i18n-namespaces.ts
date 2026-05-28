@@ -17,7 +17,7 @@ export const landingNamespaces = [
   'importCenter',
   'workspaces'
 ] as const satisfies readonly MessageNamespace[];
-export const dashboardNamespaces = ['common', 'dashboard', 'trades', 'calendar'] as const satisfies readonly MessageNamespace[];
+export const dashboardNamespaces = ['common', 'nav', 'dashboard', 'trades', 'calendar'] as const satisfies readonly MessageNamespace[];
 export const tradesNamespaces = ['common', 'nav', 'trades', 'calendar'] as const satisfies readonly MessageNamespace[];
 export const analyticsNamespaces = ['common', 'dashboard', 'analytics'] as const satisfies readonly MessageNamespace[];
 export const calendarNamespaces = ['common', 'calendar', 'trades'] as const satisfies readonly MessageNamespace[];
