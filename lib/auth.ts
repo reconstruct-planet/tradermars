@@ -164,10 +164,20 @@ async function removeSeededEliteDemoData(userId: string) {
 async function ensureEliteTestAccountWorkspace(userId: string, name: string) {
   const account = await prisma.account.findFirst({
     where: { userId },
-    select: { id: true }
+    select: { id: true, name: true, broker: true }
   });
 
-  if (!account) {
+  if (account) {
+    if (account.broker === 'Demo Broker' || account.name.startsWith('Elite test account')) {
+      await prisma.account.update({
+        where: { id: account.id },
+        data: {
+          name: `${name} account`,
+          broker: 'Manual import'
+        }
+      });
+    }
+  } else {
     await prisma.account.create({
       data: {
         userId,
