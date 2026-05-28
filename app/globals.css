@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 42 33% 97%;
+  --foreground: 222 34% 11%;
+  --card: 0 0% 100%;
+  --card-foreground: 222 34% 11%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 34% 11%;
+  --primary: 171 72% 29%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 217 22% 92%;
+  --secondary-foreground: 222 34% 11%;
+  --muted: 220 18% 92%;
+  --muted-foreground: 217 11% 42%;
+  --accent: 28 86% 55%;
+  --accent-foreground: 222 34% 11%;
+  --destructive: 0 72% 50%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 220 14% 86%;
+  --input: 220 14% 86%;
+  --ring: 171 72% 29%;
+  --radius: 0.5rem;
+}
+
+.dark {
+  --background: 220 28% 7%;
+  --foreground: 210 30% 96%;
+  --card: 220 22% 11%;
+  --card-foreground: 210 30% 96%;
+  --popover: 220 22% 11%;
+  --popover-foreground: 210 30% 96%;
+  --primary: 171 67% 45%;
+  --primary-foreground: 222 34% 8%;
+  --secondary: 218 17% 18%;
+  --secondary-foreground: 210 30% 96%;
+  --muted: 218 17% 18%;
+  --muted-foreground: 217 14% 68%;
+  --accent: 31 92% 58%;
+  --accent-foreground: 222 34% 8%;
+  --destructive: 0 64% 54%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 218 17% 20%;
+  --input: 218 17% 20%;
+  --ring: 171 67% 45%;
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+html {
+  max-width: 100%;
+  overflow-x: clip;
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  max-width: 100%;
+  overflow-x: clip;
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+::selection {
+  background: hsl(var(--primary) / 0.22);
+}

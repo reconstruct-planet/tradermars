@@ -1,0 +1,245 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AssetType {
+  STOCK
+  OPTION
+  FUTURE
+  FOREX
+  CRYPTO
+}
+
+enum TradeSide {
+  LONG
+  SHORT
+}
+
+enum GoalType {
+  MONTHLY_PNL
+  MAX_DRAWDOWN
+  MIN_WIN_RATE
+  DAILY_MAX_LOSS
+}
+
+enum NoteScope {
+  GENERAL
+  TRADE
+  DAY
+}
+
+enum Plan {
+  FREE
+  PRO
+  ELITE
+}
+
+model User {
+  id                   String              @id @default(cuid())
+  name                 String?
+  email                String              @unique
+  passwordHash         String?
+  timezone             String              @default("America/New_York")
+  plan                 Plan                @default(FREE)
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+  subscriptionStatus   String?
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+  accounts             Account[]
+  trades               Trade[]
+  tags                 Tag[]
+  notes                Note[]
+  dailyPlans           DailyPlan[]
+  checklistTemplates   ChecklistTemplate[]
+  goals                Goal[]
+  importBatches        ImportBatch[]
+}
+
+model Account {
+  id              String      @id @default(cuid())
+  userId          String
+  name            String
+  broker          String?
+  baseCurrency    String      @default("USD")
+  startingBalance Decimal     @default(50000) @db.Decimal(18, 2)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  trades          Trade[]
+  dailyPlans      DailyPlan[]
+
+  @@index([userId])
+}
+
+model Trade {
+  id            String       @id @default(cuid())
+  userId        String
+  accountId     String
+  importBatchId String?
+  symbol        String
+  assetType     AssetType
+  side          TradeSide
+  quantity      Decimal      @db.Decimal(18, 4)
+  entryPrice    Decimal      @db.Decimal(18, 4)
+  exitPrice     Decimal?     @db.Decimal(18, 4)
+  entryTime     DateTime
+  exitTime      DateTime?
+  fees          Decimal      @default(0) @db.Decimal(18, 2)
+  grossPnl      Decimal      @default(0) @db.Decimal(18, 2)
+  netPnl        Decimal      @default(0) @db.Decimal(18, 2)
+  riskAmount    Decimal?     @db.Decimal(18, 2)
+  rMultiple     Decimal      @default(0) @db.Decimal(8, 2)
+  strategy      String?
+  session       String?
+  setup         String?
+  mistake       String?
+  notes         Note[]
+  tags          TradeTag[]
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  account       Account      @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  importBatch   ImportBatch? @relation(fields: [importBatchId], references: [id], onDelete: SetNull)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@index([userId, entryTime])
+  @@index([accountId, entryTime])
+  @@index([symbol])
+}
+
+model Tag {
+  id        String     @id @default(cuid())
+  userId    String
+  name      String
+  color     String     @default("#0f766e")
+  category  String     @default("workflow")
+  createdAt DateTime   @default(now())
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  trades    TradeTag[]
+  notes     Note[]
+
+  @@unique([userId, name])
+  @@index([userId])
+}
+
+model TradeTag {
+  tradeId String
+  tagId   String
+  trade   Trade  @relation(fields: [tradeId], references: [id], onDelete: Cascade)
+  tag     Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([tradeId, tagId])
+}
+
+model Note {
+  id        String    @id @default(cuid())
+  userId    String
+  tradeId   String?
+  tagId     String?
+  scope     NoteScope @default(GENERAL)
+  day       DateTime?
+  title     String
+  content   String
+  mood      String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  trade     Trade?    @relation(fields: [tradeId], references: [id], onDelete: SetNull)
+  tag       Tag?      @relation(fields: [tagId], references: [id], onDelete: SetNull)
+
+  @@index([userId, day])
+  @@index([tradeId])
+}
+
+model DailyPlan {
+  id                  String             @id @default(cuid())
+  userId              String
+  accountId           String?
+  checklistTemplateId String?
+  day                 DateTime
+  bias                String?
+  maxLoss             Decimal?           @db.Decimal(18, 2)
+  notes               String?
+  checklistState      Json?
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  user                User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  account             Account?           @relation(fields: [accountId], references: [id], onDelete: SetNull)
+  checklistTemplate   ChecklistTemplate? @relation(fields: [checklistTemplateId], references: [id], onDelete: SetNull)
+
+  @@unique([userId, day])
+  @@index([userId, day])
+}
+
+model ChecklistTemplate {
+  id        String          @id @default(cuid())
+  userId    String
+  name      String
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     ChecklistItem[]
+  plans     DailyPlan[]
+
+  @@index([userId])
+}
+
+model ChecklistItem {
+  id         String            @id @default(cuid())
+  templateId String
+  label      String
+  sortOrder  Int               @default(0)
+  isRequired Boolean           @default(false)
+  template   ChecklistTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+}
+
+model Goal {
+  id           String   @id @default(cuid())
+  userId       String
+  type         GoalType
+  name         String
+  targetValue  Decimal  @db.Decimal(18, 2)
+  currentValue Decimal  @default(0) @db.Decimal(18, 2)
+  periodStart  DateTime
+  periodEnd    DateTime
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isActive])
+}
+
+model ImportBatch {
+  id           String           @id @default(cuid())
+  userId       String
+  filename     String
+  broker       String?
+  status       String           @default("PENDING")
+  totalRows    Int              @default(0)
+  importedRows Int              @default(0)
+  rejectedRows Int              @default(0)
+  createdAt    DateTime         @default(now())
+  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  trades       Trade[]
+  rowErrors    ImportRowError[]
+
+  @@index([userId, createdAt])
+}
+
+model ImportRowError {
+  id        String      @id @default(cuid())
+  batchId   String
+  rowNumber Int
+  reason    String
+  raw       Json
+  createdAt DateTime    @default(now())
+  batch     ImportBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+
+  @@index([batchId])
+}

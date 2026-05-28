@@ -1,0 +1,4 @@
+symbol,assetType,side,quantity,entryPrice,exitPrice,entryTime,exitTime,fees,netPnl,riskAmount,rMultiple,strategy,session,setup,mistake,tags,notes,broker,account
+AAPL,STOCK,LONG,100,187.10,190.30,2026-05-26T13:30:00.000Z,2026-05-26T15:30:00.000Z,4.80,315.20,220,1.43,Opening range,New York AM,Range break,,"A+ setup;disciplined","Waited for confirmation and scaled out.",Demo Broker,Primary margin
+TSLA,STOCK,LONG,90,174.50,171.90,2026-05-23T13:30:00.000Z,2026-05-23T14:30:00.000Z,5.20,-239.20,260,-0.92,Breakout,New York AM,News momentum,Chased entry,"chase;news","Entered before retest.",Demo Broker,Primary margin
+ES,FUTURE,LONG,2,5288.25,5294.00,2026-05-24T19:30:00.000Z,2026-05-24T20:30:00.000Z,9.20,565.80,420,1.35,Trend continuation,New York PM,Higher low,,"trend day;patience","Followed plan after consolidation.",Demo Broker,Futures account
