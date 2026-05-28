@@ -957,5 +957,20 @@
       "noMaxLoss": "No max loss set",
       "maxLoss": "Max loss {value}"
     }
+  },
+  "admin": {
+    "shell": {
+      "overview": "Overview",
+      "users": "Users",
+      "auditLogs": "Audit Logs",
+      "imports": "Imports",
+      "plansUsage": "Plans & Usage",
+      "support": "Support",
+      "settings": "Settings",
+      "admin": "Admin",
+      "environment": "Environment",
+      "searchUsers": "Search users by email or name",
+      "signOut": "Sign out"
+    }
   }
 }

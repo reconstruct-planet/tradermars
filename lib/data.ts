@@ -25,8 +25,8 @@ export const getTradingData = cache(async function getTradingData(): Promise<Tra
   const eliteTestData = getEliteTestData(email);
 
   try {
-    const user = await prisma.user.findUnique({
-      where: { email },
+    const user = await prisma.user.findFirst({
+      where: { email, status: 'ACTIVE', deletedAt: null },
       include: {
         accounts: { orderBy: { createdAt: 'asc' } },
         trades: {
@@ -35,6 +35,9 @@ export const getTradingData = cache(async function getTradingData(): Promise<Tra
             tags: { include: { tag: true } },
             notes: { orderBy: { createdAt: 'desc' }, take: 1 }
           }
+        },
+        closedPnlSegments: {
+          orderBy: { closedAt: 'desc' }
         },
         tags: { include: { trades: true }, orderBy: { name: 'asc' } },
         notes: { include: { tag: true }, orderBy: { createdAt: 'desc' } },
@@ -60,28 +63,52 @@ export const getTradingData = cache(async function getTradingData(): Promise<Tra
         baseCurrency: user.accounts[0].baseCurrency,
         startingBalance: Number(user.accounts[0].startingBalance)
       },
-      trades: user.trades.map<TradeRecord>((trade) => ({
-        id: trade.id,
-        symbol: trade.symbol,
-        assetType: trade.assetType,
-        side: trade.side,
-        quantity: Number(trade.quantity),
-        entryPrice: Number(trade.entryPrice),
-        exitPrice: trade.exitPrice === null ? null : Number(trade.exitPrice),
-        entryTime: trade.entryTime.toISOString(),
-        exitTime: trade.exitTime?.toISOString() ?? null,
-        fees: Number(trade.fees),
-        grossPnl: Number(trade.grossPnl),
-        netPnl: Number(trade.netPnl),
-        riskAmount: trade.riskAmount === null ? null : Number(trade.riskAmount),
-        rMultiple: Number(trade.rMultiple),
-        strategy: trade.strategy,
-        session: trade.session,
-        setup: trade.setup,
-        mistake: trade.mistake,
-        tags: trade.tags.map((item) => item.tag.name),
-        notes: trade.notes[0]?.content ?? null
-      })),
+      trades: [
+        ...user.trades.map<TradeRecord>((trade) => ({
+          id: trade.id,
+          symbol: trade.symbol,
+          assetType: trade.assetType,
+          side: trade.side,
+          quantity: Number(trade.quantity),
+          entryPrice: Number(trade.entryPrice),
+          exitPrice: trade.exitPrice === null ? null : Number(trade.exitPrice),
+          entryTime: trade.entryTime.toISOString(),
+          exitTime: trade.exitTime?.toISOString() ?? null,
+          fees: Number(trade.fees),
+          grossPnl: Number(trade.grossPnl),
+          netPnl: Number(trade.netPnl),
+          riskAmount: trade.riskAmount === null ? null : Number(trade.riskAmount),
+          rMultiple: Number(trade.rMultiple),
+          strategy: trade.strategy,
+          session: trade.session,
+          setup: trade.setup,
+          mistake: trade.mistake,
+          tags: trade.tags.map((item) => item.tag.name),
+          notes: trade.notes[0]?.content ?? null
+        })),
+        ...user.closedPnlSegments.map<TradeRecord>((segment) => ({
+          id: `bybit-closed-pnl-${segment.id}`,
+          symbol: segment.symbol,
+          assetType: 'FUTURE',
+          side: segment.inferredSide === 'SHORT' ? 'SHORT' : 'LONG',
+          quantity: Number(segment.quantity),
+          entryPrice: Number(segment.avgEntryPrice),
+          exitPrice: Number(segment.avgExitPrice),
+          entryTime: segment.closedAt.toISOString(),
+          exitTime: segment.closedAt.toISOString(),
+          fees: Number(segment.openingFee) + Number(segment.closingFee) + Number(segment.fundingFee),
+          grossPnl: Number(segment.grossPnl),
+          netPnl: Number(segment.netPnl),
+          riskAmount: null,
+          rMultiple: 0,
+          strategy: 'Bybit Closed PnL segment',
+          session: null,
+          setup: segment.tradeType,
+          mistake: segment.inferredSide === 'UNKNOWN' ? 'Side inference unresolved' : null,
+          tags: ['bybit', 'closed-pnl'],
+          notes: segment.inferredSide === 'UNKNOWN' ? 'Imported from Bybit Closed PnL with unresolved side inference.' : null
+        }))
+      ].sort((a, b) => new Date(b.exitTime ?? b.entryTime).getTime() - new Date(a.exitTime ?? a.entryTime).getTime()),
       tags: user.tags.map<TagRecord>((tag) => ({
         id: tag.id,
         name: tag.name,
@@ -145,8 +172,8 @@ export const getAppShellData = cache(async function getAppShellData(): Promise<A
   const eliteTestData = getEliteTestData(email);
 
   try {
-    const user = await prisma.user.findUnique({
-      where: { email },
+    const user = await prisma.user.findFirst({
+      where: { email, status: 'ACTIVE', deletedAt: null },
       include: {
         accounts: { orderBy: { createdAt: 'asc' }, take: 1 }
       }

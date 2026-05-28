@@ -18,8 +18,8 @@ export async function POST(request: Request) {
   }
 
   try {
-    const user = await prisma.user.findUniqueOrThrow({
-      where: { email: session.user.email }
+    const user = await prisma.user.findFirstOrThrow({
+      where: { email: session.user.email, status: 'ACTIVE', deletedAt: null }
     });
     const trades = await prisma.trade.findMany({
       where: {

@@ -1,6 +1,9 @@
 import bcrypt from 'bcryptjs';
 import type { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import { logAuditEvent, makeAuditMetadata } from './admin-audit';
+import { isAdminRole } from './admin-permissions';
+import { enforceAdminRateLimit } from './admin-rate-limit';
 import { demoTradingData } from './demo-data';
 import { prisma } from './prisma';
 import { validateEliteTestAccount } from './test-accounts';
@@ -66,13 +69,76 @@ export const authOptions: NextAuthOptions = {
     })
   ],
   callbacks: {
-    jwt({ token, user }) {
+    async signIn({ user }) {
+      if (!process.env.DATABASE_URL || !user.email) return true;
+
+      try {
+        const dbUser = await prisma.user.findUnique({
+          where: { email: user.email },
+          select: { id: true, role: true, status: true }
+        });
+
+        if (!dbUser) return true;
+        if (dbUser.status === 'SUSPENDED' || dbUser.status === 'DELETED') return false;
+
+        await prisma.user.update({
+          where: { id: dbUser.id },
+          data: { lastLoginAt: new Date() }
+        });
+
+        if (isAdminRole(dbUser.role)) {
+          try {
+            enforceAdminRateLimit({
+              actorUserId: dbUser.id,
+              action: 'ADMIN_LOGIN',
+              limit: 30,
+              windowMs: 5 * 60_000
+            });
+          } catch {
+            return false;
+          }
+          await logAuditEvent({
+            actorUserId: dbUser.id,
+            targetUserId: dbUser.id,
+            action: 'ADMIN_LOGIN',
+            entityType: 'User',
+            entityId: dbUser.id,
+            metadata: makeAuditMetadata({
+              previousValue: null,
+              newValue: 'LOGIN_SUCCESS',
+              extra: {
+                role: dbUser.role,
+                status: dbUser.status
+              }
+            })
+          });
+        }
+      } catch {
+        return true;
+      }
+
+      return true;
+    },
+    async jwt({ token, user }) {
       if (user) token.sub = user.id;
+      if (process.env.DATABASE_URL && token.sub) {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.sub },
+          select: { role: true, status: true }
+        }).catch(() => null);
+
+        if (dbUser) {
+          token.role = dbUser.role;
+          token.status = dbUser.status;
+        }
+      }
       return token;
     },
     session({ session, token }) {
       if (session.user) {
         session.user.id = token.sub ?? '';
+        session.user.role = token.role ?? 'USER';
+        session.user.status = token.status ?? 'ACTIVE';
       }
       return session;
     }

@@ -22,8 +22,8 @@ export async function getImportHistory(): Promise<ImportHistoryItem[]> {
   const email = session?.user?.email ?? demoTradingData.user.email;
 
   try {
-    const user = await prisma.user.findUnique({
-      where: { email },
+    const user = await prisma.user.findFirst({
+      where: { email, status: 'ACTIVE', deletedAt: null },
       select: { id: true }
     });
     if (!user) return [];

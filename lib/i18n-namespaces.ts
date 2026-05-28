@@ -24,3 +24,4 @@ export const calendarNamespaces = ['common', 'calendar', 'trades'] as const sati
 export const importNamespaces = ['common', 'importCenter'] as const satisfies readonly MessageNamespace[];
 export const insightsNamespaces = ['common', 'insights'] as const satisfies readonly MessageNamespace[];
 export const workspaceNamespaces = ['common', 'workspaces', 'settings'] as const satisfies readonly MessageNamespace[];
+export const adminNamespaces = ['common', 'admin'] as const satisfies readonly MessageNamespace[];

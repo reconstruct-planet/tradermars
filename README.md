@@ -73,7 +73,18 @@ npm run db:deploy
 npm run db:push
 npm run i18n:check
 npm run i18n:scan
+npm run admin:create
 ```
+
+## Admin Console
+
+The admin console is available at `/admin` after an operator account has a non-`USER` role. Create the first `SUPER_ADMIN` with environment variables instead of hard-coded credentials:
+
+```bash
+ADMIN_EMAIL="admin@example.com" ADMIN_INITIAL_PASSWORD="temporary-long-password" npm run admin:create
+```
+
+Admin actions are server-authorized and written to `AuditLog`. Use the temporary password once, then rotate it outside the codebase.
 
 ## Deployment
 
@@ -109,6 +120,8 @@ Use the sample CSV at `/sample-trades.csv` or download it from the Import Center
 - Accepted row import
 - Rejected row reasons stored in `ImportRowError`
 
+Bybit Futures / Perpetual imports are documented in [`docs/imports.md`](docs/imports.md). Upload Closed PnL first for accurate realized P&L analytics, then add Trade History when you want execution detail, fee validation, funding separation, and position reconstruction support.
+
 ## Data Model
 
 Prisma models include:
@@ -125,6 +138,12 @@ Prisma models include:
 - `Goal`
 - `ImportBatch`
 - `ImportRowError`
+- `ExchangeImportFile`
+- `ClosedPnlSegment`
+- `ImportedExecution`
+- `ImportedFundingEntry`
+- `ReconstructedPosition`
+- `PositionExecutionLink`
 
 ## AI Insights
 

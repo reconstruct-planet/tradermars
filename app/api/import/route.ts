@@ -1,6 +1,7 @@
 import { getServerSession } from 'next-auth';
 import { NextResponse } from 'next/server';
 import { authOptions } from '@/lib/auth';
+import { importBybitFutures } from '@/lib/bybit-futures-server';
 import { CsvMapping } from '@/lib/csv';
 import { validateImportCsv } from '@/lib/import-server';
 import { prisma } from '@/lib/prisma';
@@ -13,6 +14,34 @@ export async function POST(request: Request) {
   }
 
   const formData = await request.formData();
+  const exchange = formData.get('exchange');
+  const timezone = formData.get('timezone');
+  if (exchange === 'BYBIT_FUTURES') {
+    try {
+      const user = await prisma.user.findFirstOrThrow({
+        where: { email: session.user.email, status: 'ACTIVE', deletedAt: null }
+      });
+      const result = await importBybitFutures({
+        db: prisma,
+        userId: user.id,
+        closedPnlFile: optionalFile(formData.get('closedPnlFile')),
+        tradeHistoryFile: optionalFile(formData.get('tradeHistoryFile')),
+        timezone: typeof timezone === 'string' && timezone.trim() ? timezone.trim() : 'UTC'
+      });
+
+      return NextResponse.json({
+        ok: true,
+        mode: 'BYBIT_FUTURES',
+        ...result
+      });
+    } catch (error) {
+      return NextResponse.json(
+        { error: error instanceof Error ? error.message : 'Bybit import failed.' },
+        { status: 500 }
+      );
+    }
+  }
+
   const file = formData.get('file');
   const mappingRaw = formData.get('mapping');
 
@@ -21,8 +50,8 @@ export async function POST(request: Request) {
   }
 
   try {
-    const user = await prisma.user.findUniqueOrThrow({
-      where: { email: session.user.email }
+    const user = await prisma.user.findFirstOrThrow({
+      where: { email: session.user.email, status: 'ACTIVE', deletedAt: null }
     });
     const mapping = JSON.parse(mappingRaw) as CsvMapping;
     const validation = await validateImportCsv({
@@ -96,4 +125,8 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
+}
+
+function optionalFile(value: FormDataEntryValue | null) {
+  return value instanceof File && value.size > 0 ? value : null;
 }

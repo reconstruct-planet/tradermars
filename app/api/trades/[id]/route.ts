@@ -19,8 +19,8 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
   try {
     const { id } = await params;
-    const user = await prisma.user.findUniqueOrThrow({
-      where: { email: session.user.email }
+    const user = await prisma.user.findFirstOrThrow({
+      where: { email: session.user.email, status: 'ACTIVE', deletedAt: null }
     });
     await updateTradeWithTags({
       db: prisma,
@@ -43,8 +43,8 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
 
   try {
     const { id } = await params;
-    const user = await prisma.user.findUniqueOrThrow({
-      where: { email: session.user.email }
+    const user = await prisma.user.findFirstOrThrow({
+      where: { email: session.user.email, status: 'ACTIVE', deletedAt: null }
     });
 
     await prisma.trade.delete({

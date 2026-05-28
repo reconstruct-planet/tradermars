@@ -16,6 +16,11 @@ TradeHarbor needs a server-capable host for the full product. Do not deploy it a
    DATABASE_URL="postgresql://..."
    NEXTAUTH_SECRET="generate-a-long-random-secret"
    NEXTAUTH_URL="https://your-production-domain"
+   ADMIN_EMAIL="admin@example.com"
+   ADMIN_INITIAL_PASSWORD="temporary-password-change-after-login"
+   ADMIN_INVITES_ENABLED="false"
+   ADMIN_REQUIRE_2FA="false"
+   ADMIN_AUDIT_RETENTION_DAYS="365"
    ```
 
 4. Deploy once, then initialize the database schema from your machine or a trusted CI job:
@@ -24,6 +29,7 @@ TradeHarbor needs a server-capable host for the full product. Do not deploy it a
    npm install
    npm run db:push
    npm run db:seed
+   npm run admin:create
    ```
 
    Use the production `DATABASE_URL` when running those commands.

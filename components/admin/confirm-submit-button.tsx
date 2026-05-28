@@ -1,0 +1,24 @@
+'use client';
+
+import { Button } from '@/components/ui/button';
+import type { ButtonProps } from '@/components/ui/button';
+
+type ConfirmSubmitButtonProps = ButtonProps & {
+  message: string;
+};
+
+export function ConfirmSubmitButton({ message, onClick, ...props }: ConfirmSubmitButtonProps) {
+  return (
+    <Button
+      {...props}
+      type="submit"
+      onClick={(event) => {
+        if (!window.confirm(message)) {
+          event.preventDefault();
+          return;
+        }
+        onClick?.(event);
+      }}
+    />
+  );
+}

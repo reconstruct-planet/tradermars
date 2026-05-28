@@ -39,26 +39,61 @@ enum Plan {
   ELITE
 }
 
+enum UserRole {
+  USER
+  SUPPORT
+  ANALYST
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  DELETED
+  PENDING
+}
+
+enum AdminNoteVisibility {
+  INTERNAL
+}
+
 model User {
-  id                   String              @id @default(cuid())
-  name                 String?
-  email                String              @unique
-  passwordHash         String?
-  timezone             String              @default("America/New_York")
-  plan                 Plan                @default(FREE)
-  stripeCustomerId     String?
-  stripeSubscriptionId String?
-  subscriptionStatus   String?
-  createdAt            DateTime            @default(now())
-  updatedAt            DateTime            @updatedAt
-  accounts             Account[]
-  trades               Trade[]
-  tags                 Tag[]
-  notes                Note[]
-  dailyPlans           DailyPlan[]
-  checklistTemplates   ChecklistTemplate[]
-  goals                Goal[]
-  importBatches        ImportBatch[]
+  id                     String                  @id @default(cuid())
+  name                   String?
+  email                  String                  @unique
+  passwordHash           String?
+  role                   UserRole                @default(USER)
+  status                 UserStatus              @default(ACTIVE)
+  emailVerified          DateTime?
+  lastLoginAt            DateTime?
+  timezone               String                  @default("America/New_York")
+  plan                   Plan                    @default(FREE)
+  stripeCustomerId       String?
+  stripeSubscriptionId   String?
+  subscriptionStatus     String?
+  suspendedAt            DateTime?
+  suspendedReason        String?
+  deletedAt              DateTime?
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+  accounts               Account[]
+  trades                 Trade[]
+  tags                   Tag[]
+  notes                  Note[]
+  dailyPlans             DailyPlan[]
+  checklistTemplates     ChecklistTemplate[]
+  goals                  Goal[]
+  importBatches          ImportBatch[]
+  exchangeImportFiles    ExchangeImportFile[]
+  closedPnlSegments      ClosedPnlSegment[]
+  importedExecutions     ImportedExecution[]
+  fundingEntries         ImportedFundingEntry[]
+  reconstructedPositions ReconstructedPosition[]
+  auditLogsAsActor       AuditLog[]              @relation("AuditActor")
+  auditLogsAsTarget      AuditLog[]              @relation("AuditTarget")
+  authoredAdminNotes     AdminNote[]             @relation("AdminNoteAuthor")
+  adminNotes             AdminNote[]             @relation("AdminNoteTarget")
 }
 
 model Account {
@@ -216,20 +251,33 @@ model Goal {
 }
 
 model ImportBatch {
-  id           String           @id @default(cuid())
-  userId       String
-  filename     String
-  broker       String?
-  status       String           @default("PENDING")
-  totalRows    Int              @default(0)
-  importedRows Int              @default(0)
-  rejectedRows Int              @default(0)
-  createdAt    DateTime         @default(now())
-  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  trades       Trade[]
-  rowErrors    ImportRowError[]
+  id                     String                  @id @default(cuid())
+  userId                 String
+  filename               String
+  broker                 String?
+  status                 String                  @default("PENDING")
+  exchange               String?
+  marketType             String?
+  sourceType             String?
+  dataQuality            String?
+  adapterVersion         String?
+  timezone               String?
+  sourceFileHash         String?
+  totalRows              Int                     @default(0)
+  importedRows           Int                     @default(0)
+  rejectedRows           Int                     @default(0)
+  createdAt              DateTime                @default(now())
+  user                   User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  trades                 Trade[]
+  rowErrors              ImportRowError[]
+  exchangeFiles          ExchangeImportFile[]
+  closedPnlSegments      ClosedPnlSegment[]
+  importedExecutions     ImportedExecution[]
+  fundingEntries         ImportedFundingEntry[]
+  reconstructedPositions ReconstructedPosition[]
 
   @@index([userId, createdAt])
+  @@index([exchange, marketType])
 }
 
 model ImportRowError {
@@ -242,4 +290,237 @@ model ImportRowError {
   batch     ImportBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
 
   @@index([batchId])
+}
+
+model ExchangeImportFile {
+  id                 String                 @id @default(cuid())
+  userId             String
+  batchId            String
+  sourceFileName     String
+  sourceFileHash     String
+  sourceType         String
+  adapterVersion     String
+  detectedExchange   String
+  detectedFileType   String
+  confidenceScore    Decimal                @default(0) @db.Decimal(5, 2)
+  rowCount           Int                    @default(0)
+  symbolCount        Int                    @default(0)
+  dateStart          DateTime?
+  dateEnd            DateTime?
+  warnings           Json?
+  errors             Json?
+  createdAt          DateTime               @default(now())
+  user               User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  batch              ImportBatch            @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  closedPnlSegments  ClosedPnlSegment[]
+  importedExecutions ImportedExecution[]
+  fundingEntries     ImportedFundingEntry[]
+
+  @@index([userId, createdAt])
+  @@index([batchId])
+  @@index([detectedExchange, detectedFileType])
+}
+
+model ClosedPnlSegment {
+  id                      String                 @id @default(cuid())
+  userId                  String
+  batchId                 String
+  exchangeImportFileId    String?
+  reconstructedPositionId String?
+  sourceFileName          String
+  sourceFileHash          String
+  sourceType              String
+  adapterVersion          String
+  rowIndex                Int
+  exchange                String
+  marketType              String
+  symbol                  String
+  quantity                Decimal                @db.Decimal(28, 10)
+  avgEntryPrice           Decimal                @db.Decimal(28, 10)
+  avgExitPrice            Decimal                @db.Decimal(28, 10)
+  openingFee              Decimal                @default(0) @db.Decimal(28, 10)
+  closingFee              Decimal                @default(0) @db.Decimal(28, 10)
+  fundingFee              Decimal                @default(0) @db.Decimal(28, 10)
+  grossPnl                Decimal                @default(0) @db.Decimal(28, 10)
+  netPnl                  Decimal                @default(0) @db.Decimal(28, 10)
+  closedAt                DateTime
+  tradeType               String?
+  inferredSide            String                 @default("UNKNOWN")
+  sideInferenceConfidence Decimal                @default(0) @db.Decimal(5, 2)
+  formulaTolerance        Decimal                @default(0) @db.Decimal(28, 10)
+  duplicateKey            String
+  sourceRowHash           String
+  warnings                Json?
+  errors                  Json?
+  createdAt               DateTime               @default(now())
+  user                    User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  batch                   ImportBatch            @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  exchangeImportFile      ExchangeImportFile?    @relation(fields: [exchangeImportFileId], references: [id], onDelete: SetNull)
+  reconstructedPosition   ReconstructedPosition? @relation(fields: [reconstructedPositionId], references: [id], onDelete: SetNull)
+
+  @@unique([userId, duplicateKey])
+  @@index([batchId])
+  @@index([userId, closedAt])
+  @@index([symbol, closedAt])
+}
+
+model ImportedExecution {
+  id                   String                  @id @default(cuid())
+  userId               String
+  batchId              String
+  exchangeImportFileId String?
+  sourceFileName       String
+  sourceFileHash       String
+  sourceType           String
+  adapterVersion       String
+  rowIndex             Int
+  exchange             String
+  marketType           String
+  symbol               String
+  filledType           String
+  quantity             Decimal                 @db.Decimal(28, 10)
+  filledPrice          Decimal                 @db.Decimal(28, 10)
+  orderPrice           Decimal?                @db.Decimal(28, 10)
+  feeRate              Decimal?                @db.Decimal(28, 10)
+  fee                  Decimal                 @default(0) @db.Decimal(28, 10)
+  feeCoin              String?
+  execFeeV2            Decimal?                @db.Decimal(28, 10)
+  direction            String?
+  orderType            String?
+  tradeId              String?
+  orderId              String?
+  executedAt           DateTime
+  duplicateKey         String
+  sourceRowHash        String
+  warnings             Json?
+  errors               Json?
+  createdAt            DateTime                @default(now())
+  user                 User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  batch                ImportBatch             @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  exchangeImportFile   ExchangeImportFile?     @relation(fields: [exchangeImportFileId], references: [id], onDelete: SetNull)
+  positionLinks        PositionExecutionLink[]
+
+  @@unique([userId, duplicateKey])
+  @@index([batchId])
+  @@index([userId, executedAt])
+  @@index([symbol, executedAt])
+  @@index([tradeId])
+  @@index([orderId])
+}
+
+model ImportedFundingEntry {
+  id                   String              @id @default(cuid())
+  userId               String
+  batchId              String
+  exchangeImportFileId String?
+  sourceFileName       String
+  sourceFileHash       String
+  sourceType           String
+  adapterVersion       String
+  rowIndex             Int
+  exchange             String
+  marketType           String
+  symbol               String
+  amount               Decimal             @default(0) @db.Decimal(28, 10)
+  currency             String?
+  fundingType          String?
+  executedAt           DateTime
+  duplicateKey         String
+  sourceRowHash        String
+  warnings             Json?
+  errors               Json?
+  createdAt            DateTime            @default(now())
+  user                 User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  batch                ImportBatch         @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  exchangeImportFile   ExchangeImportFile? @relation(fields: [exchangeImportFileId], references: [id], onDelete: SetNull)
+
+  @@unique([userId, duplicateKey])
+  @@index([batchId])
+  @@index([userId, executedAt])
+  @@index([symbol, executedAt])
+}
+
+model ReconstructedPosition {
+  id                String                  @id @default(cuid())
+  userId            String
+  batchId           String
+  sourceType        String
+  adapterVersion    String
+  exchange          String
+  marketType        String
+  symbol            String
+  side              String                  @default("UNKNOWN")
+  quantity          Decimal                 @db.Decimal(28, 10)
+  avgEntryPrice     Decimal                 @db.Decimal(28, 10)
+  avgExitPrice      Decimal                 @db.Decimal(28, 10)
+  openingFee        Decimal                 @default(0) @db.Decimal(28, 10)
+  closingFee        Decimal                 @default(0) @db.Decimal(28, 10)
+  fundingFee        Decimal                 @default(0) @db.Decimal(28, 10)
+  grossPnl          Decimal                 @default(0) @db.Decimal(28, 10)
+  netPnl            Decimal                 @default(0) @db.Decimal(28, 10)
+  openedAt          DateTime?
+  closedAt          DateTime
+  confidenceScore   Decimal                 @default(0) @db.Decimal(5, 2)
+  dataQuality       String
+  segmentRowIndexes Json
+  warnings          Json?
+  createdAt         DateTime                @default(now())
+  user              User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  batch             ImportBatch             @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  closedPnlSegments ClosedPnlSegment[]
+  executionLinks    PositionExecutionLink[]
+
+  @@index([batchId])
+  @@index([userId, closedAt])
+  @@index([symbol, closedAt])
+}
+
+model PositionExecutionLink {
+  id              String                @id @default(cuid())
+  positionId      String
+  executionId     String
+  linkType        String
+  confidenceScore Decimal               @default(0) @db.Decimal(5, 2)
+  createdAt       DateTime              @default(now())
+  position        ReconstructedPosition @relation(fields: [positionId], references: [id], onDelete: Cascade)
+  execution       ImportedExecution     @relation(fields: [executionId], references: [id], onDelete: Cascade)
+
+  @@unique([positionId, executionId])
+  @@index([executionId])
+}
+
+model AuditLog {
+  id           String   @id @default(cuid())
+  actorUserId  String?
+  targetUserId String?
+  action       String
+  entityType   String
+  entityId     String?
+  metadata     Json?
+  ipAddress    String?
+  userAgent    String?
+  createdAt    DateTime @default(now())
+  actor        User?    @relation("AuditActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+  target       User?    @relation("AuditTarget", fields: [targetUserId], references: [id], onDelete: SetNull)
+
+  @@index([actorUserId, createdAt])
+  @@index([targetUserId, createdAt])
+  @@index([action, createdAt])
+  @@index([entityType, entityId])
+}
+
+model AdminNote {
+  id         String              @id @default(cuid())
+  userId     String
+  authorId   String?
+  note       String
+  visibility AdminNoteVisibility @default(INTERNAL)
+  deletedAt  DateTime?
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
+  user       User                @relation("AdminNoteTarget", fields: [userId], references: [id], onDelete: Cascade)
+  author     User?               @relation("AdminNoteAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@index([authorId, createdAt])
 }
