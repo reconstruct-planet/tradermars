@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { forbidden, redirect } from 'next/navigation';
+import { redirect } from 'next/navigation';
 import { logAuditEvent, makeAuditMetadata } from '@/lib/admin-audit';
 import { enforceAdminRateLimit } from '@/lib/admin-rate-limit';
 import {
@@ -477,5 +477,5 @@ async function denyAdminAction(
     }),
     ...details.requestMeta
   });
-  forbidden();
+  redirect('/admin-denied');
 }

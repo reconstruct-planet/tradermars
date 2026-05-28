@@ -1,5 +1,5 @@
 import { headers } from 'next/headers';
-import { forbidden, notFound, redirect } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import type { Prisma } from '@prisma/client';
 import { authOptions } from './auth';
@@ -84,7 +84,7 @@ export async function requireAdmin(
       }),
       ...requestMeta
     });
-    forbidden();
+    redirectToAdminDenied(path);
   }
 
   const admin = {
@@ -126,7 +126,7 @@ export async function requireRole(roles: AdminRole[], path = '/admin') {
       }),
       ...(await getRequestAuditMeta(path))
     });
-    forbidden();
+    redirectToAdminDenied(path);
   }
   return admin;
 }
@@ -136,7 +136,11 @@ export async function requirePermission(permission: AdminPermission, path = '/ad
 }
 
 export function assertAdminPermission(admin: AdminContext, permission: AdminPermission) {
-  if (!hasAdminPermission(admin.role, permission)) forbidden();
+  if (!hasAdminPermission(admin.role, permission)) redirectToAdminDenied('/admin');
+}
+
+function redirectToAdminDenied(path: string): never {
+  redirect(`/admin-denied?from=${encodeURIComponent(path)}`);
 }
 
 export async function getAdminDashboardData(admin: AdminContext) {
