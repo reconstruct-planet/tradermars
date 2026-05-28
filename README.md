@@ -63,9 +63,17 @@ npm run lint
 npm run typecheck
 npm run test
 npm run build
+npm run db:deploy
+npm run db:push
 npm run i18n:check
 npm run i18n:scan
 ```
+
+## Deployment
+
+Use a server-capable platform such as Vercel with PostgreSQL for the full app. Static GitHub Pages deployment is not enough for auth, API routes, CSV import persistence, and trade writes.
+
+See `DEPLOYMENT.md` for the production checklist.
 
 ## Languages And Translations
 
