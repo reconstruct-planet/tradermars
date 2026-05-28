@@ -3,6 +3,7 @@ import type { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { demoTradingData } from './demo-data';
 import { prisma } from './prisma';
+import { validateEliteTestAccount } from './test-accounts';
 import { loginSchema } from './validation';
 
 const demoAuthSecret = !process.env.DATABASE_URL
@@ -33,10 +34,12 @@ export const authOptions: NextAuthOptions = {
             where: { email: parsed.data.email }
           });
 
-          if (!user?.passwordHash) return null;
+          if (!user?.passwordHash) {
+            return await authorizeEliteTestAccount(parsed.data.email, parsed.data.password);
+          }
 
           const valid = await bcrypt.compare(parsed.data.password, user.passwordHash);
-          if (!valid) return null;
+          if (!valid) return await authorizeEliteTestAccount(parsed.data.email, parsed.data.password);
 
           return {
             id: user.id,
@@ -44,6 +47,9 @@ export const authOptions: NextAuthOptions = {
             name: user.name ?? user.email
           };
         } catch {
+          const eliteTestUser = await authorizeEliteTestAccount(parsed.data.email, parsed.data.password);
+          if (eliteTestUser) return eliteTestUser;
+
           if (
             parsed.data.email === demoTradingData.user.email &&
             parsed.data.password === 'demo1234'
@@ -72,3 +78,14 @@ export const authOptions: NextAuthOptions = {
     }
   }
 };
+
+async function authorizeEliteTestAccount(email: string, password: string) {
+  const account = await validateEliteTestAccount(email, password);
+  if (!account) return null;
+
+  return {
+    id: account.id,
+    email: account.email,
+    name: account.name
+  };
+}

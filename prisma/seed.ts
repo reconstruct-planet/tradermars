@@ -1,5 +1,7 @@
+import { randomBytes } from 'crypto';
 import bcrypt from 'bcryptjs';
 import { PrismaClient } from '@prisma/client';
+import type { Plan } from '../lib/types';
 import {
   demoChecklistTemplates,
   demoDailyPlans,
@@ -12,6 +14,71 @@ import {
 
 const prisma = new PrismaClient();
 const legacyDemoEmails = ['demo@' + 'edgefolio.app'];
+const demoPassword = 'demo1234';
+const defaultEliteTestPasswords = [
+  'Elite-1-lKEiievnsnCp',
+  'Elite-2-yGa0jcZGYG42',
+  'Elite-3-QARpdfy9kJCQ',
+  'Elite-4-Bjink5Pfqhuc',
+  'Elite-5-1lWT8Euk49WY'
+];
+
+type SeedAccount = {
+  name: string;
+  broker: string | null;
+  baseCurrency: string;
+  startingBalance: number;
+};
+
+type SeedUser = {
+  name: string;
+  email: string;
+  password: string;
+  timezone: string;
+  plan: Plan;
+  account: SeedAccount;
+  importFilename: string;
+};
+
+const demoSeedUser: SeedUser = {
+  name: demoTradingData.user.name,
+  email: demoTradingData.user.email,
+  password: demoPassword,
+  timezone: demoTradingData.user.timezone,
+  plan: demoTradingData.user.plan,
+  account: {
+    name: demoTradingData.account.name,
+    broker: demoTradingData.account.broker,
+    baseCurrency: demoTradingData.account.baseCurrency,
+    startingBalance: demoTradingData.account.startingBalance
+  },
+  importFilename: 'tradeharbor-demo-seed.csv'
+};
+
+const eliteTestUsers: SeedUser[] = Array.from({ length: 5 }, (_, index) => {
+  const number = index + 1;
+
+  return {
+    name: `Elite Test Trader ${number}`,
+    email: `elite${number}@tradeharbor.app`,
+    password: getEliteTestPassword(number),
+    timezone: demoTradingData.user.timezone,
+    plan: 'ELITE',
+    account: {
+      name: `Elite test account ${number}`,
+      broker: 'Demo Broker',
+      baseCurrency: 'USD',
+      startingBalance: 50000
+    },
+    importFilename: `tradeharbor-elite-test-${number}.csv`
+  };
+});
+
+function getEliteTestPassword(number: number) {
+  return process.env[`ELITE_TEST_PASSWORD_${number}`]
+    ?? defaultEliteTestPasswords[number - 1]
+    ?? `Elite-${number}-${randomBytes(9).toString('base64url')}`;
+}
 
 async function removeLegacyDemoUsers(activeEmail: string) {
   const emailsToRemove = legacyDemoEmails.filter((email) => email !== activeEmail);
@@ -29,23 +96,23 @@ async function removeLegacyDemoUsers(activeEmail: string) {
   });
 }
 
-async function main() {
-  await removeLegacyDemoUsers(demoTradingData.user.email);
-
-  const passwordHash = await bcrypt.hash('demo1234', 10);
+async function seedTradingUser(seedUser: SeedUser, passwordHash: string) {
   const user = await prisma.user.upsert({
-    where: { email: demoTradingData.user.email },
+    where: { email: seedUser.email },
     update: {
-      name: demoTradingData.user.name,
+      name: seedUser.name,
       passwordHash,
-      plan: demoTradingData.user.plan
+      timezone: seedUser.timezone,
+      plan: seedUser.plan,
+      subscriptionStatus: seedUser.plan === 'ELITE' ? 'active' : null
     },
     create: {
-      name: demoTradingData.user.name,
-      email: demoTradingData.user.email,
+      name: seedUser.name,
+      email: seedUser.email,
       passwordHash,
-      timezone: demoTradingData.user.timezone,
-      plan: demoTradingData.user.plan
+      timezone: seedUser.timezone,
+      plan: seedUser.plan,
+      subscriptionStatus: seedUser.plan === 'ELITE' ? 'active' : null
     }
   });
 
@@ -61,18 +128,18 @@ async function main() {
   const account = await prisma.account.create({
     data: {
       userId: user.id,
-      name: demoTradingData.account.name,
-      broker: demoTradingData.account.broker,
-      baseCurrency: demoTradingData.account.baseCurrency,
-      startingBalance: demoTradingData.account.startingBalance
+      name: seedUser.account.name,
+      broker: seedUser.account.broker,
+      baseCurrency: seedUser.account.baseCurrency,
+      startingBalance: seedUser.account.startingBalance
     }
   });
 
   const importBatch = await prisma.importBatch.create({
     data: {
       userId: user.id,
-      filename: 'tradeharbor-demo-seed.csv',
-      broker: 'Demo Broker',
+      filename: seedUser.importFilename,
+      broker: seedUser.account.broker,
       status: 'IMPORTED',
       totalRows: demoTrades.length,
       importedRows: demoTrades.length,
@@ -145,35 +212,46 @@ async function main() {
     });
   }
 
+  const templateIdMap = new Map<string, string>();
+  const checklistItemIdMap = new Map<string, string>();
   for (const template of demoChecklistTemplates) {
-    await prisma.checklistTemplate.create({
+    const createdTemplate = await prisma.checklistTemplate.create({
       data: {
-        id: template.id,
         userId: user.id,
-        name: template.name,
-        items: {
-          create: template.items.map((item) => ({
-            id: item.id,
-            label: item.label,
-            isRequired: item.isRequired,
-            sortOrder: item.sortOrder
-          }))
-        }
+        name: template.name
       }
     });
+
+    templateIdMap.set(template.id, createdTemplate.id);
+
+    for (const item of template.items) {
+      const createdItem = await prisma.checklistItem.create({
+        data: {
+          templateId: createdTemplate.id,
+          label: item.label,
+          isRequired: item.isRequired,
+          sortOrder: item.sortOrder
+        }
+      });
+      checklistItemIdMap.set(item.id, createdItem.id);
+    }
   }
 
   for (const plan of demoDailyPlans) {
+    const checklistTemplateId = demoChecklistTemplates[0]
+      ? templateIdMap.get(demoChecklistTemplates[0].id)
+      : undefined;
+
     await prisma.dailyPlan.create({
       data: {
         userId: user.id,
         accountId: account.id,
-        checklistTemplateId: demoChecklistTemplates[0]?.id,
+        checklistTemplateId,
         day: plan.day,
         bias: plan.bias,
         maxLoss: plan.maxLoss,
         notes: plan.notes,
-        checklistState: plan.checklistState ?? undefined
+        checklistState: mapChecklistState(plan.checklistState, checklistItemIdMap) ?? undefined
       }
     });
   }
@@ -193,7 +271,39 @@ async function main() {
     });
   }
 
-  console.log(`Seeded ${demoTrades.length} trades for ${demoTradingData.user.email}`);
+  console.log(`Seeded ${demoTrades.length} trades for ${seedUser.email} (${seedUser.plan})`);
+}
+
+function mapChecklistState(state: Record<string, boolean> | null, itemIdMap: Map<string, string>) {
+  if (!state) {
+    return null;
+  }
+
+  return Object.fromEntries(
+    Object.entries(state).map(([itemId, checked]) => [itemIdMap.get(itemId) ?? itemId, checked])
+  );
+}
+
+async function main() {
+  await removeLegacyDemoUsers(demoSeedUser.email);
+
+  const seedUsers = [demoSeedUser, ...eliteTestUsers];
+  const passwordHashes = new Map<string, string>();
+
+  for (const seedUser of seedUsers) {
+    let passwordHash = passwordHashes.get(seedUser.password);
+    if (!passwordHash) {
+      passwordHash = await bcrypt.hash(seedUser.password, 10);
+      passwordHashes.set(seedUser.password, passwordHash);
+    }
+
+    await seedTradingUser(seedUser, passwordHash);
+  }
+
+  console.log('Elite test accounts seeded:');
+  for (const user of eliteTestUsers) {
+    console.log(`- ${user.email} / ${user.password}`);
+  }
 }
 
 main()

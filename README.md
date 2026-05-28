@@ -54,6 +54,12 @@ Demo login after seeding:
 - Email: `demo@tradeharbor.app`
 - Password: `demo1234`
 
+Elite test logins after seeding:
+
+- Emails: `elite1@tradeharbor.app`, `elite2@tradeharbor.app`, `elite3@tradeharbor.app`, `elite4@tradeharbor.app`, `elite5@tradeharbor.app`
+- Passwords: generated uniquely during seed and printed once; set `ELITE_TEST_PASSWORD_1` through `ELITE_TEST_PASSWORD_5` before seeding to pin them
+- Plan: `ELITE` with active subscription status
+
 If the database is not configured, app pages still render read-only fallback demo data so the UI can be reviewed.
 
 ## Useful Scripts

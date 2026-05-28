@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from './auth';
 import { demoTradingData } from './demo-data';
 import { prisma } from './prisma';
+import { findEliteTestAccount, makeEliteTestTradingData, type EliteTestEmail } from './test-accounts';
 import type {
   AppShellData,
   ChecklistTemplateRecord,
@@ -21,6 +22,7 @@ export const getTradingData = cache(async function getTradingData(): Promise<Tra
 
   const session = await getServerSession(authOptions).catch(() => null);
   const email = session?.user?.email ?? demoTradingData.user.email;
+  const eliteTestData = getEliteTestData(email);
 
   try {
     const user = await prisma.user.findUnique({
@@ -42,7 +44,7 @@ export const getTradingData = cache(async function getTradingData(): Promise<Tra
       }
     });
 
-    if (!user || !user.accounts[0]) return demoTradingData;
+    if (!user || !user.accounts[0]) return eliteTestData ?? demoTradingData;
 
     return {
       user: {
@@ -129,7 +131,7 @@ export const getTradingData = cache(async function getTradingData(): Promise<Tra
       isDemoFallback: false
     };
   } catch {
-    return demoTradingData;
+    return eliteTestData ?? demoTradingData;
   }
 });
 
@@ -140,6 +142,7 @@ export const getAppShellData = cache(async function getAppShellData(): Promise<A
 
   const session = await getServerSession(authOptions).catch(() => null);
   const email = session?.user?.email ?? demoTradingData.user.email;
+  const eliteTestData = getEliteTestData(email);
 
   try {
     const user = await prisma.user.findUnique({
@@ -149,7 +152,7 @@ export const getAppShellData = cache(async function getAppShellData(): Promise<A
       }
     });
 
-    if (!user || !user.accounts[0]) return pickShellData(demoTradingData);
+    if (!user || !user.accounts[0]) return pickShellData(eliteTestData ?? demoTradingData);
 
     return {
       user: {
@@ -168,9 +171,14 @@ export const getAppShellData = cache(async function getAppShellData(): Promise<A
       isDemoFallback: false
     };
   } catch {
-    return pickShellData(demoTradingData);
+    return pickShellData(eliteTestData ?? demoTradingData);
   }
 });
+
+function getEliteTestData(email: string) {
+  const account = findEliteTestAccount(email);
+  return account ? makeEliteTestTradingData(account.email as EliteTestEmail) : null;
+}
 
 function pickShellData(data: TradingData): AppShellData {
   return {
