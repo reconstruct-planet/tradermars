@@ -11,8 +11,27 @@ import {
 } from '../lib/demo-data';
 
 const prisma = new PrismaClient();
+const legacyDemoEmails = ['demo@' + 'edgefolio.app'];
+
+async function removeLegacyDemoUsers(activeEmail: string) {
+  const emailsToRemove = legacyDemoEmails.filter((email) => email !== activeEmail);
+
+  if (emailsToRemove.length === 0) {
+    return;
+  }
+
+  await prisma.user.deleteMany({
+    where: {
+      email: {
+        in: emailsToRemove
+      }
+    }
+  });
+}
 
 async function main() {
+  await removeLegacyDemoUsers(demoTradingData.user.email);
+
   const passwordHash = await bcrypt.hash('demo1234', 10);
   const user = await prisma.user.upsert({
     where: { email: demoTradingData.user.email },
@@ -52,7 +71,7 @@ async function main() {
   const importBatch = await prisma.importBatch.create({
     data: {
       userId: user.id,
-      filename: 'edgefolio-demo-seed.csv',
+      filename: 'tradeharbor-demo-seed.csv',
       broker: 'Demo Broker',
       status: 'IMPORTED',
       totalRows: demoTrades.length,
