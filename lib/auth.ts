@@ -29,6 +29,9 @@ export const authOptions: NextAuthOptions = {
         const parsed = loginSchema.safeParse(credentials);
         if (!parsed.success) return null;
 
+        const eliteTestUser = await authorizeEliteTestAccount(parsed.data.email, parsed.data.password);
+        if (eliteTestUser) return eliteTestUser;
+
         try {
           const user = await prisma.user.findUnique({
             where: { email: parsed.data.email }
@@ -47,9 +50,6 @@ export const authOptions: NextAuthOptions = {
             name: user.name ?? user.email
           };
         } catch {
-          const eliteTestUser = await authorizeEliteTestAccount(parsed.data.email, parsed.data.password);
-          if (eliteTestUser) return eliteTestUser;
-
           if (
             parsed.data.email === demoTradingData.user.email &&
             parsed.data.password === 'demo1234'
