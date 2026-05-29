@@ -131,11 +131,11 @@ export function DashboardWorkstation({ data }: { data: TradingData }) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="w-[calc(100vw-2rem)] min-w-0 max-w-full space-y-6 lg:w-auto">
       <div className="flex flex-col justify-between gap-3 md:flex-row md:items-end">
-        <div>
-          <h1 className="text-3xl font-semibold tracking-normal">{t('dashboard.title')}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">{t('dashboard.subtitle')}</p>
+        <div className="min-w-0">
+          <h1 className="overflow-wrap-anywhere break-words text-3xl font-semibold tracking-normal">{t('dashboard.title')}</h1>
+          <p className="overflow-wrap-anywhere mt-1 break-words text-sm text-muted-foreground">{t('dashboard.subtitle')}</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <Button asChild variant="outline">
@@ -161,14 +161,14 @@ export function DashboardWorkstation({ data }: { data: TradingData }) {
       />
 
       <Card className="border-dashed bg-card/70">
-        <CardContent className="flex flex-col gap-3 p-4 md:flex-row md:items-center md:justify-between">
-          <div className="flex items-center gap-3">
+        <CardContent className="flex min-w-0 flex-col gap-3 overflow-hidden p-4 md:flex-row md:items-center md:justify-between">
+          <div className="flex min-w-0 items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary/10 text-primary">
               <LayoutDashboard className="h-5 w-5" />
             </div>
-            <div>
+            <div className="min-w-0">
               <p className="text-sm font-medium">{t('dashboard.savedLayout')}</p>
-              <p className="text-xs text-muted-foreground">{t('dashboard.savedLayoutDescription')}</p>
+              <p className="overflow-wrap-anywhere break-words text-xs text-muted-foreground">{t('dashboard.savedLayoutDescription')}</p>
             </div>
           </div>
           {chartFilter ? (
@@ -177,12 +177,12 @@ export function DashboardWorkstation({ data }: { data: TradingData }) {
               {t('dashboard.clearChartFocus', { label: chartFilter.label })}
             </Button>
           ) : (
-            <Badge variant="secondary">{t('dashboard.clickChartHint')}</Badge>
+            <Badge className="w-full justify-start whitespace-normal text-left sm:w-auto" variant="secondary">{t('dashboard.clickChartHint')}</Badge>
           )}
         </CardContent>
       </Card>
 
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-6">
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-6">
         {buildKpiCards(metrics, t, formatCurrency, formatNumber, formatPercent).map((kpi) => (
           <button key={kpi.key} className="text-left" onClick={() => setExplainedKpi(kpi.key)}>
             <Card className="h-full transition-colors hover:border-primary/50 hover:bg-secondary/40">
@@ -201,7 +201,7 @@ export function DashboardWorkstation({ data }: { data: TradingData }) {
         ))}
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-[1.3fr_0.7fr]">
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.3fr)_minmax(0,0.7fr)]">
         <ChartPanel title={t('dashboard.charts.equityCurve')} description={t('dashboard.chartDescriptions.equityCurve')}>
           <ResponsiveContainer width="100%" height={320}>
             <AreaChart data={equity} onClick={(event) => setDateFilterFromChart(event?.activeLabel, setChartFilter)}>
@@ -244,7 +244,7 @@ export function DashboardWorkstation({ data }: { data: TradingData }) {
         </ChartPanel>
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <ChartPanel title={t('dashboard.charts.drawdownCurve')} description={t('dashboard.chartDescriptions.drawdownCurve')}>
           <ResponsiveContainer width="100%" height={280}>
             <AreaChart data={drawdown} onClick={(event) => setDateFilterFromChart(event?.activeLabel, setChartFilter)}>
@@ -303,7 +303,7 @@ export function DashboardWorkstation({ data }: { data: TradingData }) {
         </ChartPanel>
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
         <BarBreakdown
           title={t('dashboard.charts.pnlBySymbol')}
           description={t('dashboard.chartDescriptions.pnlBySymbol')}
@@ -327,7 +327,7 @@ export function DashboardWorkstation({ data }: { data: TradingData }) {
         />
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-[1fr_0.9fr]">
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
         <ChartPanel title={t('dashboard.charts.hourHeatmap')} description={t('dashboard.chartDescriptions.hourHeatmap')}>
           <HourHeatmap data={hourly} onClick={(hour) => setChartFilter({ kind: 'hour', value: hour, label: `${hour}:00 ${t('dashboard.entries')}` })} />
         </ChartPanel>
@@ -387,7 +387,7 @@ function GlobalFilters({
         </CardTitle>
         <CardDescription>{t('dashboard.filterDescription')}</CardDescription>
       </CardHeader>
-      <CardContent className="grid gap-3 md:grid-cols-3 xl:grid-cols-6">
+      <CardContent className="grid min-w-0 grid-cols-1 gap-3 md:grid-cols-3 xl:grid-cols-6">
         <label className="text-sm">
           <span className="mb-2 block font-medium">{t('dashboard.filterLabels.account')}</span>
           <Select value={data.account.id} onChange={() => undefined}>

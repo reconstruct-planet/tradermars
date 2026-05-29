@@ -21,7 +21,11 @@ export const getTradingData = cache(async function getTradingData(): Promise<Tra
   }
 
   const session = await getServerSession(authOptions).catch(() => null);
-  const email = session?.user?.email ?? demoTradingData.user.email;
+  if (!session?.user?.email) {
+    throw new Error('Authentication is required to load trading data.');
+  }
+
+  const email = session.user.email;
   const eliteTestData = getEliteTestData(email);
 
   try {
@@ -47,7 +51,10 @@ export const getTradingData = cache(async function getTradingData(): Promise<Tra
       }
     });
 
-    if (!user || !user.accounts[0]) return eliteTestData ?? demoTradingData;
+    if (!user || !user.accounts[0]) {
+      if (eliteTestData) return eliteTestData;
+      throw new Error('Active trading account was not found.');
+    }
 
     return {
       user: {
@@ -157,8 +164,9 @@ export const getTradingData = cache(async function getTradingData(): Promise<Tra
       })),
       isDemoFallback: false
     };
-  } catch {
-    return eliteTestData ?? demoTradingData;
+  } catch (error) {
+    if (eliteTestData) return eliteTestData;
+    throw error;
   }
 });
 
@@ -168,7 +176,11 @@ export const getAppShellData = cache(async function getAppShellData(): Promise<A
   }
 
   const session = await getServerSession(authOptions).catch(() => null);
-  const email = session?.user?.email ?? demoTradingData.user.email;
+  if (!session?.user?.email) {
+    throw new Error('Authentication is required to load app shell data.');
+  }
+
+  const email = session.user.email;
   const eliteTestData = getEliteTestData(email);
 
   try {
@@ -179,7 +191,10 @@ export const getAppShellData = cache(async function getAppShellData(): Promise<A
       }
     });
 
-    if (!user || !user.accounts[0]) return pickShellData(eliteTestData ?? demoTradingData);
+    if (!user || !user.accounts[0]) {
+      if (eliteTestData) return pickShellData(eliteTestData);
+      throw new Error('Active trading account was not found.');
+    }
 
     return {
       user: {
@@ -197,8 +212,9 @@ export const getAppShellData = cache(async function getAppShellData(): Promise<A
       },
       isDemoFallback: false
     };
-  } catch {
-    return pickShellData(eliteTestData ?? demoTradingData);
+  } catch (error) {
+    if (eliteTestData) return pickShellData(eliteTestData);
+    throw error;
   }
 });
 

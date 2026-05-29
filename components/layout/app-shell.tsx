@@ -84,7 +84,7 @@ export function AppShell({ children, data }: { children: ReactNode; data: AppShe
   }, []);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen overflow-x-clip bg-background">
       <aside
         className={cn(
           'fixed inset-y-0 left-0 z-40 w-72 border-r bg-card/95 shadow-[16px_0_50px_hsl(var(--primary)/0.05)] backdrop-blur transition-transform lg:translate-x-0',
@@ -121,8 +121,8 @@ export function AppShell({ children, data }: { children: ReactNode; data: AppShe
 
       {open ? <div className="fixed inset-0 z-30 bg-black/30 lg:hidden" onClick={() => setOpen(false)} /> : null}
 
-      <div className="lg:pl-72">
-        <header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b bg-background/95 px-4">
+      <div className="min-w-0 lg:pl-72">
+        <header className="sticky top-0 z-20 flex h-16 min-w-0 max-w-[100vw] items-center gap-3 overflow-x-clip border-b bg-background/95 px-4">
           <Button className="lg:hidden" variant="ghost" size="icon" onClick={openMobileNav}>
             <Menu className="h-5 w-5" />
           </Button>
@@ -164,11 +164,11 @@ export function AppShell({ children, data }: { children: ReactNode; data: AppShe
           </div>
         </header>
         {data.isDemoFallback ? (
-          <div className="border-b bg-amber-50 px-4 py-2 text-sm text-amber-800 dark:bg-amber-950 dark:text-amber-200">
+          <div className="overflow-wrap-anywhere border-b bg-amber-50 px-4 py-2 text-sm text-amber-800 dark:bg-amber-950 dark:text-amber-200">
             {t('nav.demoBanner')}
           </div>
         ) : null}
-        <main className="mx-auto w-full max-w-[1500px] px-4 py-6 lg:px-6">{children}</main>
+        <main className="mx-auto w-full max-w-[100vw] min-w-0 px-4 py-6 lg:max-w-[1500px] lg:px-6">{children}</main>
       </div>
       {lockedFeature ? (
         <UpgradeModal

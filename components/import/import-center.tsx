@@ -74,6 +74,7 @@ type ImportResult = {
 };
 
 type ExchangeMode = 'GENERIC_CSV' | 'BYBIT_FUTURES';
+type BybitDataQuality = 'HIGH' | 'MEDIUM' | 'LIMITED' | 'LOW';
 
 type BybitDetection = {
   fileName: string;
@@ -130,7 +131,7 @@ type BybitRejectedPreviewRow = {
 };
 
 type BybitPreviewResult = {
-  dataQuality: 'HIGH' | 'MEDIUM' | 'LIMITED' | 'LOW';
+  dataQuality: BybitDataQuality;
   timezone: string;
   files: Array<{ detection: BybitDetection }>;
   closedPnl: {
@@ -163,7 +164,7 @@ type BybitPreviewResult = {
 
 type BybitImportResult = {
   batchId: string;
-  dataQuality: 'HIGH' | 'MEDIUM' | 'LIMITED' | 'LOW';
+  dataQuality: BybitDataQuality;
   totalRows: number;
   importedClosedPnlSegments: number;
   importedExecutions: number;
@@ -196,7 +197,7 @@ export function ImportCenter({ history }: { history: ImportHistoryItem[] }) {
   const canPreview = Boolean(file && rows.length && !missingRequiredMappings.length);
   const stepLabels =
     exchangeMode === 'BYBIT_FUTURES'
-      ? ['Select exchange', 'Upload files', 'Detect and preview', 'Import']
+      ? (t('importCenter.bybit.steps') as unknown as string[])
       : (t('importCenter.steps') as unknown as string[]);
 
   async function onFileChange(event: ChangeEvent<HTMLInputElement>) {
@@ -334,8 +335,8 @@ export function ImportCenter({ history }: { history: ImportHistoryItem[] }) {
 
       <Card>
         <CardHeader>
-          <CardTitle>Exchange adapter</CardTitle>
-          <CardDescription>Select a generic mapped CSV import or a broker-specific futures workflow.</CardDescription>
+          <CardTitle>{t('importCenter.bybit.exchangeAdapterTitle')}</CardTitle>
+          <CardDescription>{t('importCenter.bybit.exchangeAdapterDescription')}</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-3 md:grid-cols-[minmax(220px,320px),1fr] md:items-center">
           <Select
@@ -345,11 +346,11 @@ export function ImportCenter({ history }: { history: ImportHistoryItem[] }) {
               setExchangeMode(event.target.value as ExchangeMode);
             }}
           >
-            <option value="GENERIC_CSV">Generic mapped CSV</option>
-            <option value="BYBIT_FUTURES">Bybit Futures / Perpetual</option>
+            <option value="GENERIC_CSV">{t('importCenter.bybit.genericCsvOption')}</option>
+            <option value="BYBIT_FUTURES">{t('importCenter.bybit.bybitOption')}</option>
           </Select>
           <p className="text-sm text-muted-foreground">
-            Bybit Futures uses Closed PnL as the performance source of truth and Trade History as execution detail.
+            {t('importCenter.bybit.exchangeAdapterHelp')}
           </p>
         </CardContent>
       </Card>
@@ -570,7 +571,7 @@ export function ImportCenter({ history }: { history: ImportHistoryItem[] }) {
 }
 
 function BybitFuturesImportPanel() {
-  const { formatCurrency } = useI18n();
+  const { t, formatCurrency } = useI18n();
   const [closedPnlFile, setClosedPnlFile] = useState<File | null>(null);
   const [tradeHistoryFile, setTradeHistoryFile] = useState<File | null>(null);
   const [timezone, setTimezone] = useState('UTC');
@@ -580,6 +581,12 @@ function BybitFuturesImportPanel() {
   const [loadingPreview, setLoadingPreview] = useState(false);
   const [loadingImport, setLoadingImport] = useState(false);
   const canPreview = Boolean(closedPnlFile || tradeHistoryFile);
+  const notAvailableLabel = t('importCenter.bybit.notAvailable');
+  const uploadWarnings = [
+    t('importCenter.bybit.warnings.executionOnly'),
+    t('importCenter.bybit.warnings.closedPnlEntryTime'),
+    t('importCenter.bybit.warnings.fundingRows')
+  ];
 
   async function validateBybitFiles() {
     if (!canPreview) return;
@@ -596,7 +603,7 @@ function BybitFuturesImportPanel() {
     setLoadingPreview(false);
 
     if (!response.ok) {
-      setError(payload?.error ?? 'Bybit preview failed.');
+      setError(payload?.error ?? t('importCenter.bybit.previewFailed'));
       return;
     }
 
@@ -618,7 +625,7 @@ function BybitFuturesImportPanel() {
     setLoadingImport(false);
 
     if (!response.ok) {
-      setError(payload?.error ?? 'Bybit import failed.');
+      setError(payload?.error ?? t('importCenter.bybit.importFailed'));
       return;
     }
 
@@ -631,54 +638,60 @@ function BybitFuturesImportPanel() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <UploadCloud className="h-5 w-5 text-primary" />
-            Bybit Futures files
+            {t('importCenter.bybit.panelTitle')}
           </CardTitle>
-          <CardDescription>Upload Closed PnL first. Add Trade History when you want execution-level analysis.</CardDescription>
+          <CardDescription>{t('importCenter.bybit.panelDescription')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
           <div className="grid gap-4 lg:grid-cols-2">
             <BybitUploadBox
-              title="Closed PnL"
-              requiredLabel="Required for high-quality P&L"
+              title={t('importCenter.bybit.closedPnlTitle')}
+              requiredLabel={t('importCenter.bybit.closedPnlBadge')}
               file={closedPnlFile}
               onChange={(file) => {
                 setClosedPnlFile(file);
                 setPreview(null);
                 setResult(null);
               }}
-              description="Closed PnL gives the most accurate realized P&L analysis."
+              description={t('importCenter.bybit.closedPnlDescription')}
+              chooseLabel={t('importCenter.bybit.chooseFile')}
             />
             <BybitUploadBox
-              title="Trade History"
-              requiredLabel="Optional but recommended"
+              title={t('importCenter.bybit.tradeHistoryTitle')}
+              requiredLabel={t('importCenter.bybit.tradeHistoryBadge')}
               file={tradeHistoryFile}
               onChange={(file) => {
                 setTradeHistoryFile(file);
                 setPreview(null);
                 setResult(null);
               }}
-              description="Trade History improves execution analysis and helps reconstruct entries and exits."
+              description={t('importCenter.bybit.tradeHistoryDescription')}
+              note={t('importCenter.bybit.tradeHistoryExecutionNote')}
+              chooseLabel={t('importCenter.bybit.chooseFile')}
             />
           </div>
 
+          <DataQualityGuide />
+          <WarningList warnings={uploadWarnings} />
+
           <div className="grid gap-3 lg:grid-cols-[minmax(200px,280px),1fr] lg:items-start">
             <label className="block text-sm">
-              <span className="mb-2 block font-medium">Detected timezone</span>
+              <span className="mb-2 block font-medium">{t('importCenter.bybit.timezoneLabel')}</span>
               <Input value={timezone} onChange={(event) => setTimezone(event.target.value)} placeholder="UTC" />
             </label>
             <div className="rounded-md border bg-secondary/30 p-3 text-sm text-muted-foreground">
               <Info className="mr-2 inline h-4 w-4 text-primary" />
-              Bybit Trade History timestamps are UTC+0. Closed PnL is parsed as UTC unless you override it here.
+              {t('importCenter.bybit.timezoneHelp')}
             </div>
           </div>
 
           <div className="grid gap-3 md:grid-cols-2">
             <RequiredColumns
-              title="Closed PnL required columns"
+              title={t('importCenter.bybit.closedPnlColumnsTitle')}
               columns={['Market', 'Order Quantity', 'Entry Price', 'Exit Price', 'Opening Fee', 'Closing Fee', 'Funding Fee', 'Trade Type', 'Realized P&L', 'Trade time']}
             />
             <RequiredColumns
-              title="Trade History required columns"
+              title={t('importCenter.bybit.tradeHistoryColumnsTitle')}
               columns={['Market', 'Filled Type', 'Filled Quantity', 'Filled Price', 'Trading Fee', 'Direction', 'Order Type', 'Trasaction ID', 'Order No.', 'Transaction Time(UTC+0)']}
             />
           </div>
@@ -686,7 +699,7 @@ function BybitFuturesImportPanel() {
           {error ? <p className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">{error}</p> : null}
 
           <Button onClick={validateBybitFiles} disabled={!canPreview || loadingPreview}>
-            {loadingPreview ? 'Detecting...' : 'Detect and preview Bybit files'}
+            {loadingPreview ? t('importCenter.bybit.detecting') : t('importCenter.bybit.detectAndPreview')}
           </Button>
         </CardContent>
       </Card>
@@ -696,8 +709,8 @@ function BybitFuturesImportPanel() {
           <Card>
             <CardHeader className="flex-col gap-3 md:flex-row md:items-center md:justify-between md:space-y-0">
               <div>
-                <CardTitle>Detection result</CardTitle>
-                <CardDescription>Detected timezone: {preview.timezone}</CardDescription>
+                <CardTitle>{t('importCenter.bybit.detectionTitle')}</CardTitle>
+                <CardDescription>{t('importCenter.bybit.detectedTimezone', { timezone: preview.timezone })}</CardDescription>
               </div>
               <QualityBadge quality={preview.dataQuality} />
             </CardHeader>
@@ -713,9 +726,12 @@ function BybitFuturesImportPanel() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Closed PnL preview</CardTitle>
+              <CardTitle>{t('importCenter.bybit.closedPnlPreviewTitle')}</CardTitle>
               <CardDescription>
-                {preview.closedPnl.rows.length} parsed rows, {preview.closedPnl.rejectedRows.length} rejected rows.
+                {t('importCenter.bybit.closedPnlPreviewDescription', {
+                  parsed: preview.closedPnl.rows.length,
+                  rejected: preview.closedPnl.rejectedRows.length
+                })}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -725,9 +741,13 @@ function BybitFuturesImportPanel() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Trade History preview</CardTitle>
+              <CardTitle>{t('importCenter.bybit.tradeHistoryPreviewTitle')}</CardTitle>
               <CardDescription>
-                {preview.tradeHistory.executions.length} trade executions, {preview.tradeHistory.fundingRows.length} funding rows, {preview.tradeHistory.rejectedRows.length} rejected rows.
+                {t('importCenter.bybit.tradeHistoryPreviewDescription', {
+                  executions: preview.tradeHistory.executions.length,
+                  funding: preview.tradeHistory.fundingRows.length,
+                  rejected: preview.tradeHistory.rejectedRows.length
+                })}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -738,26 +758,26 @@ function BybitFuturesImportPanel() {
           <Card>
             <CardHeader className="flex-col gap-3 md:flex-row md:items-center md:justify-between md:space-y-0">
               <div>
-                <CardTitle>Match result</CardTitle>
-                <CardDescription>Closed PnL is matched to executions without counting every fill as a completed trade.</CardDescription>
+                <CardTitle>{t('importCenter.bybit.matchResultTitle')}</CardTitle>
+                <CardDescription>{t('importCenter.bybit.matchResultDescription')}</CardDescription>
               </div>
               <Button onClick={submitBybitImport} disabled={loadingImport}>
-                {loadingImport ? 'Importing...' : 'Import Bybit records'}
+                {loadingImport ? t('importCenter.bybit.importing') : t('importCenter.bybit.importRecords')}
               </Button>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-6">
-                <SummaryCard label="Matched PnL rows" value={String(preview.matchResult.matchedClosedPnlRows)} tone="positive" />
-                <SummaryCard label="Unmatched PnL rows" value={String(preview.matchResult.unmatchedClosedPnlRows)} tone={preview.matchResult.unmatchedClosedPnlRows ? 'negative' : 'neutral'} />
-                <SummaryCard label="Matched executions" value={String(preview.matchResult.matchedTradeHistoryExecutions)} />
-                <SummaryCard label="Unmatched fills" value={String(preview.matchResult.unmatchedExecutions)} />
-                <SummaryCard label="Funding rows" value={String(preview.matchResult.fundingRows)} />
-                <SummaryCard label="Confidence" value={`${Math.round(preview.matchResult.reconstructionConfidence * 100)}%`} />
+                <SummaryCard label={t('importCenter.bybit.summary.matchedPnlRows')} value={String(preview.matchResult.matchedClosedPnlRows)} tone="positive" />
+                <SummaryCard label={t('importCenter.bybit.summary.unmatchedPnlRows')} value={String(preview.matchResult.unmatchedClosedPnlRows)} tone={preview.matchResult.unmatchedClosedPnlRows ? 'negative' : 'neutral'} />
+                <SummaryCard label={t('importCenter.bybit.summary.matchedExecutions')} value={String(preview.matchResult.matchedTradeHistoryExecutions)} />
+                <SummaryCard label={t('importCenter.bybit.summary.unmatchedFills')} value={String(preview.matchResult.unmatchedExecutions)} />
+                <SummaryCard label={t('importCenter.bybit.summary.fundingRows')} value={String(preview.matchResult.fundingRows)} />
+                <SummaryCard label={t('importCenter.bybit.summary.confidence')} value={`${Math.round(preview.matchResult.reconstructionConfidence * 100)}%`} />
               </div>
               <div className="grid gap-3 md:grid-cols-3">
-                <SummaryCard label="Fee validation" value={preview.matchResult.feeValidationStatus} tone={preview.matchResult.feeValidationStatus === 'PASSED' ? 'positive' : 'neutral'} />
-                <SummaryCard label="Closed PnL trade fees" value={formatDecimal(preview.matchResult.closedTradeFeeTotal)} />
-                <SummaryCard label="Execution fees" value={formatDecimal(preview.matchResult.executionFeeTotal)} />
+                <SummaryCard label={t('importCenter.bybit.summary.feeValidation')} value={preview.matchResult.feeValidationStatus} tone={preview.matchResult.feeValidationStatus === 'PASSED' ? 'positive' : 'neutral'} />
+                <SummaryCard label={t('importCenter.bybit.summary.closedPnlTradeFees')} value={formatDecimal(preview.matchResult.closedTradeFeeTotal, notAvailableLabel)} />
+                <SummaryCard label={t('importCenter.bybit.summary.executionFees')} value={formatDecimal(preview.matchResult.executionFeeTotal, notAvailableLabel)} />
               </div>
               {preview.matchResult.warnings.length ? <WarningList warnings={preview.matchResult.warnings} /> : null}
             </CardContent>
@@ -770,27 +790,27 @@ function BybitFuturesImportPanel() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <CheckCircle2 className="h-5 w-5 text-primary" />
-              Bybit import result
+              {t('importCenter.bybit.importResultTitle')}
             </CardTitle>
-            <CardDescription>Batch {result.batchId} finished with {result.dataQuality} data quality.</CardDescription>
+            <CardDescription>{t('importCenter.bybit.importResultDescription', { batchId: result.batchId, dataQuality: result.dataQuality })}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-3 md:grid-cols-4">
-              <SummaryCard label="Closed PnL segments" value={String(result.importedClosedPnlSegments)} tone="positive" />
-              <SummaryCard label="Executions" value={String(result.importedExecutions)} />
-              <SummaryCard label="Funding entries" value={String(result.importedFundingEntries)} />
-              <SummaryCard label="Positions" value={String(result.reconstructedPositions)} />
-              <SummaryCard label="Duplicates skipped" value={String(result.duplicatesSkipped)} />
-              <SummaryCard label="Rejected rows" value={String(result.rejectedRows)} tone={result.rejectedRows ? 'negative' : 'neutral'} />
-              <SummaryCard label="Total source rows" value={String(result.totalRows)} />
-              <SummaryCard label="Data quality" value={result.dataQuality} tone={result.dataQuality === 'HIGH' ? 'positive' : result.dataQuality === 'LOW' ? 'negative' : 'neutral'} />
+              <SummaryCard label={t('importCenter.bybit.summary.closedPnlSegments')} value={String(result.importedClosedPnlSegments)} tone="positive" />
+              <SummaryCard label={t('importCenter.bybit.summary.executions')} value={String(result.importedExecutions)} />
+              <SummaryCard label={t('importCenter.bybit.summary.fundingEntries')} value={String(result.importedFundingEntries)} />
+              <SummaryCard label={t('importCenter.bybit.summary.positions')} value={String(result.reconstructedPositions)} />
+              <SummaryCard label={t('importCenter.bybit.summary.duplicatesSkipped')} value={String(result.duplicatesSkipped)} />
+              <SummaryCard label={t('importCenter.bybit.summary.rejectedRows')} value={String(result.rejectedRows)} tone={result.rejectedRows ? 'negative' : 'neutral'} />
+              <SummaryCard label={t('importCenter.bybit.summary.totalSourceRows')} value={String(result.totalRows)} />
+              <SummaryCard label={t('importCenter.bybit.summary.dataQuality')} value={result.dataQuality} tone={result.dataQuality === 'HIGH' ? 'positive' : result.dataQuality === 'LOW' ? 'negative' : 'neutral'} />
             </div>
             {result.errors.length ? (
               <PreviewTable
-                title="Bybit rejected rows"
+                title={t('importCenter.bybit.rejectedRowsTitle')}
                 rows={result.errors.slice(0, 12).map((row) => ({
                   rowNumber: row.rowNumber,
-                  status: 'Rejected',
+                  status: t('importCenter.bybit.rejectedStatus'),
                   tone: 'negative',
                   symbol: row.raw.Market ?? '',
                   side: '',
@@ -829,12 +849,16 @@ function BybitUploadBox({
   requiredLabel,
   file,
   description,
+  note,
+  chooseLabel,
   onChange
 }: {
   title: string;
   requiredLabel: string;
   file: File | null;
   description: string;
+  note?: string;
+  chooseLabel: string;
   onChange: (file: File | null) => void;
 }) {
   return (
@@ -845,10 +869,11 @@ function BybitUploadBox({
           <Badge variant="secondary">{requiredLabel}</Badge>
         </span>
         <span className="mt-2 block text-sm text-muted-foreground">{description}</span>
+        {note ? <span className="mt-2 block text-xs font-medium text-amber-700 dark:text-amber-300">{note}</span> : null}
       </span>
       <span className="mt-5 flex items-center gap-3 rounded-md border bg-secondary/30 p-3 text-sm">
         <UploadCloud className="h-4 w-4 text-primary" />
-        <span className="min-w-0 truncate">{file ? file.name : 'Choose CSV or XLSX'}</span>
+        <span className="min-w-0 truncate">{file ? file.name : chooseLabel}</span>
       </span>
       <input
         className="sr-only"
@@ -857,6 +882,25 @@ function BybitUploadBox({
         onChange={(event) => onChange(event.target.files?.[0] ?? null)}
       />
     </label>
+  );
+}
+
+function DataQualityGuide() {
+  const { t } = useI18n();
+  const qualities: BybitDataQuality[] = ['HIGH', 'MEDIUM', 'LIMITED', 'LOW'];
+
+  return (
+    <div className="rounded-md border bg-secondary/20 p-3">
+      <p className="text-sm font-semibold">{t('importCenter.bybit.dataQualityTitle')}</p>
+      <div className="mt-3 grid gap-2 md:grid-cols-2">
+        {qualities.map((quality) => (
+          <div key={quality} className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+            <QualityBadge quality={quality} />
+            <span>{t(`importCenter.bybit.dataQualityDescriptions.${quality}`)}</span>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -875,19 +919,17 @@ function RequiredColumns({ title, columns }: { title: string; columns: string[] 
   );
 }
 
-function QualityBadge({ quality }: { quality: 'HIGH' | 'MEDIUM' | 'LIMITED' | 'LOW' }) {
+function QualityBadge({ quality }: { quality: BybitDataQuality }) {
+  const { t } = useI18n();
   const variant = quality === 'HIGH' ? 'positive' : quality === 'LOW' ? 'negative' : 'secondary';
-  const label = {
-    HIGH: 'High data quality',
-    MEDIUM: 'Medium data quality',
-    LIMITED: 'Limited data quality',
-    LOW: 'Low data quality'
-  }[quality];
 
-  return <Badge variant={variant}>{label}</Badge>;
+  return <Badge variant={variant}>{t(`importCenter.bybit.dataQuality.${quality}`)}</Badge>;
 }
 
 function DetectionSummary({ detection }: { detection: BybitDetection }) {
+  const { t } = useI18n();
+  const notAvailableLabel = t('importCenter.bybit.notAvailable');
+
   return (
     <div className="rounded-md border p-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -897,14 +939,18 @@ function DetectionSummary({ detection }: { detection: BybitDetection }) {
         </Badge>
       </div>
       <div className="mt-3 grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">
-        <span>Rows: {detection.rowCount}</span>
-        <span>Symbols: {detection.symbolCount}</span>
-        <span>Confidence: {detection.confidenceScore}%</span>
-        <span>Date range: {formatDateRange(detection.dateRange.start, detection.dateRange.end)}</span>
+        <span>{t('importCenter.bybit.detection.rows', { count: detection.rowCount })}</span>
+        <span>{t('importCenter.bybit.detection.symbols', { count: detection.symbolCount })}</span>
+        <span>{t('importCenter.bybit.detection.confidence', { score: detection.confidenceScore })}</span>
+        <span>
+          {t('importCenter.bybit.detection.dateRange', {
+            range: formatDateRange(detection.dateRange.start, detection.dateRange.end, notAvailableLabel, t('common.to'))
+          })}
+        </span>
       </div>
       {detection.missingColumns.length ? (
         <p className="mt-3 text-sm text-amber-700 dark:text-amber-300">
-          Missing: {detection.missingColumns.join(', ')}
+          {t('importCenter.bybit.detection.missing', { columns: detection.missingColumns.join(', ') })}
         </p>
       ) : null}
       {detection.warnings.length ? <WarningList warnings={detection.warnings} /> : null}
@@ -932,24 +978,27 @@ function BybitClosedPnlTable({
   rows: BybitClosedPnlPreviewRow[];
   formatCurrency: (value: number) => string;
 }) {
+  const { t } = useI18n();
+  const notAvailableLabel = t('importCenter.bybit.notAvailable');
+
   return (
     <div className="overflow-x-auto rounded-md border">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Row</TableHead>
-            <TableHead>Symbol</TableHead>
-            <TableHead>Side</TableHead>
-            <TableHead>Qty</TableHead>
-            <TableHead>Entry</TableHead>
-            <TableHead>Exit</TableHead>
-            <TableHead>Gross P&L</TableHead>
-            <TableHead>Net P&L</TableHead>
-            <TableHead>Open fee</TableHead>
-            <TableHead>Close fee</TableHead>
-            <TableHead>Funding</TableHead>
-            <TableHead>Closed at</TableHead>
-            <TableHead>Warning</TableHead>
+            <TableHead>{t('importCenter.bybit.table.row')}</TableHead>
+            <TableHead>{t('importCenter.bybit.table.symbol')}</TableHead>
+            <TableHead>{t('importCenter.bybit.table.side')}</TableHead>
+            <TableHead>{t('importCenter.bybit.table.quantity')}</TableHead>
+            <TableHead>{t('importCenter.bybit.table.entry')}</TableHead>
+            <TableHead>{t('importCenter.bybit.table.exit')}</TableHead>
+            <TableHead>{t('importCenter.bybit.table.grossPnl')}</TableHead>
+            <TableHead>{t('importCenter.bybit.table.netPnl')}</TableHead>
+            <TableHead>{t('importCenter.bybit.table.openFee')}</TableHead>
+            <TableHead>{t('importCenter.bybit.table.closeFee')}</TableHead>
+            <TableHead>{t('importCenter.bybit.table.funding')}</TableHead>
+            <TableHead>{t('importCenter.bybit.table.closedAt')}</TableHead>
+            <TableHead>{t('importCenter.bybit.table.warning')}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -958,20 +1007,20 @@ function BybitClosedPnlTable({
               <TableCell>{row.rowIndex}</TableCell>
               <TableCell>{row.symbol}</TableCell>
               <TableCell><Badge variant={row.inferredSide === 'UNKNOWN' ? 'secondary' : 'outline'}>{row.inferredSide}</Badge></TableCell>
-              <TableCell>{formatDecimal(row.quantity)}</TableCell>
-              <TableCell>{formatDecimal(row.avgEntryPrice)}</TableCell>
-              <TableCell>{formatDecimal(row.avgExitPrice)}</TableCell>
+              <TableCell>{formatDecimal(row.quantity, notAvailableLabel)}</TableCell>
+              <TableCell>{formatDecimal(row.avgEntryPrice, notAvailableLabel)}</TableCell>
+              <TableCell>{formatDecimal(row.avgExitPrice, notAvailableLabel)}</TableCell>
               <TableCell>{formatCurrency(row.grossPnl)}</TableCell>
               <TableCell>{formatCurrency(row.netPnl)}</TableCell>
-              <TableCell>{formatDecimal(row.openingFee)}</TableCell>
-              <TableCell>{formatDecimal(row.closingFee)}</TableCell>
-              <TableCell>{formatDecimal(row.fundingFee)}</TableCell>
+              <TableCell>{formatDecimal(row.openingFee, notAvailableLabel)}</TableCell>
+              <TableCell>{formatDecimal(row.closingFee, notAvailableLabel)}</TableCell>
+              <TableCell>{formatDecimal(row.fundingFee, notAvailableLabel)}</TableCell>
               <TableCell className="whitespace-nowrap">{formatDateTime(row.closedAt)}</TableCell>
               <TableCell className="min-w-56 text-muted-foreground">{row.warnings.join(' ')}</TableCell>
             </TableRow>
           )) : (
             <TableRow>
-              <TableCell colSpan={13} className="h-24 text-center text-muted-foreground">No Closed PnL rows to show.</TableCell>
+              <TableCell colSpan={13} className="h-24 text-center text-muted-foreground">{t('importCenter.bybit.table.noClosedPnlRows')}</TableCell>
             </TableRow>
           )}
         </TableBody>
@@ -981,24 +1030,27 @@ function BybitClosedPnlTable({
 }
 
 function BybitExecutionTable({ rows }: { rows: BybitExecutionPreviewRow[] }) {
+  const { t } = useI18n();
+  const notAvailableLabel = t('importCenter.bybit.notAvailable');
+
   return (
     <div className="overflow-x-auto rounded-md border">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Row</TableHead>
-            <TableHead>Symbol</TableHead>
-            <TableHead>Filled type</TableHead>
-            <TableHead>Direction</TableHead>
-            <TableHead>Qty</TableHead>
-            <TableHead>Filled price</TableHead>
-            <TableHead>Order type</TableHead>
-            <TableHead>Fee</TableHead>
-            <TableHead>Fee rate</TableHead>
-            <TableHead>Trade ID</TableHead>
-            <TableHead>Order ID</TableHead>
-            <TableHead>Executed at</TableHead>
-            <TableHead>Warning</TableHead>
+            <TableHead>{t('importCenter.bybit.table.row')}</TableHead>
+            <TableHead>{t('importCenter.bybit.table.symbol')}</TableHead>
+            <TableHead>{t('importCenter.bybit.table.filledType')}</TableHead>
+            <TableHead>{t('importCenter.bybit.table.direction')}</TableHead>
+            <TableHead>{t('importCenter.bybit.table.quantity')}</TableHead>
+            <TableHead>{t('importCenter.bybit.table.filledPrice')}</TableHead>
+            <TableHead>{t('importCenter.bybit.table.orderType')}</TableHead>
+            <TableHead>{t('importCenter.bybit.table.fee')}</TableHead>
+            <TableHead>{t('importCenter.bybit.table.feeRate')}</TableHead>
+            <TableHead>{t('importCenter.bybit.table.tradeId')}</TableHead>
+            <TableHead>{t('importCenter.bybit.table.orderId')}</TableHead>
+            <TableHead>{t('importCenter.bybit.table.executedAt')}</TableHead>
+            <TableHead>{t('importCenter.bybit.table.warning')}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -1008,11 +1060,11 @@ function BybitExecutionTable({ rows }: { rows: BybitExecutionPreviewRow[] }) {
               <TableCell>{row.symbol}</TableCell>
               <TableCell>{row.filledType}</TableCell>
               <TableCell>{row.direction ?? ''}</TableCell>
-              <TableCell>{formatDecimal(row.quantity)}</TableCell>
-              <TableCell>{formatDecimal(row.filledPrice)}</TableCell>
+              <TableCell>{formatDecimal(row.quantity, notAvailableLabel)}</TableCell>
+              <TableCell>{formatDecimal(row.filledPrice, notAvailableLabel)}</TableCell>
               <TableCell>{row.orderType ?? ''}</TableCell>
-              <TableCell>{formatDecimal(row.fee)}</TableCell>
-              <TableCell>{formatDecimal(row.feeRate)}</TableCell>
+              <TableCell>{formatDecimal(row.fee, notAvailableLabel)}</TableCell>
+              <TableCell>{formatDecimal(row.feeRate, notAvailableLabel)}</TableCell>
               <TableCell className="whitespace-nowrap">{row.tradeId ?? ''}</TableCell>
               <TableCell className="whitespace-nowrap">{row.orderId ?? ''}</TableCell>
               <TableCell className="whitespace-nowrap">{formatDateTime(row.executedAt)}</TableCell>
@@ -1020,7 +1072,7 @@ function BybitExecutionTable({ rows }: { rows: BybitExecutionPreviewRow[] }) {
             </TableRow>
           )) : (
             <TableRow>
-              <TableCell colSpan={13} className="h-24 text-center text-muted-foreground">No Trade History execution rows to show.</TableCell>
+              <TableCell colSpan={13} className="h-24 text-center text-muted-foreground">{t('importCenter.bybit.table.noTradeHistoryRows')}</TableCell>
             </TableRow>
           )}
         </TableBody>
@@ -1029,8 +1081,8 @@ function BybitExecutionTable({ rows }: { rows: BybitExecutionPreviewRow[] }) {
   );
 }
 
-function formatDecimal(value: number | null | undefined) {
-  if (value === null || value === undefined || Number.isNaN(value)) return 'n/a';
+function formatDecimal(value: number | null | undefined, notAvailableLabel = 'n/a') {
+  if (value === null || value === undefined || Number.isNaN(value)) return notAvailableLabel;
   return new Intl.NumberFormat('en-US', {
     maximumFractionDigits: 8
   }).format(value);
@@ -1040,9 +1092,9 @@ function formatDateTime(value: string) {
   return new Date(value).toISOString().replace('T', ' ').slice(0, 19);
 }
 
-function formatDateRange(start: string | null, end: string | null) {
-  if (!start || !end) return 'n/a';
-  return `${formatDateTime(start)} to ${formatDateTime(end)}`;
+function formatDateRange(start: string | null, end: string | null, notAvailableLabel = 'n/a', toLabel = 'to') {
+  if (!start || !end) return notAvailableLabel;
+  return `${formatDateTime(start)} ${toLabel} ${formatDateTime(end)}`;
 }
 
 function StatusStrip({ valid, invalid, total }: { valid: number; invalid: number; total: number }) {

@@ -60,7 +60,8 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
       return;
     }
 
-    router.push(localized ? `/${locale}/dashboard` : '/app/dashboard');
+    const callbackUrl = new URLSearchParams(window.location.search).get('callbackUrl');
+    router.push(getSafeCallbackUrl(callbackUrl, localized ? `/${locale}/dashboard` : '/app/dashboard'));
     router.refresh();
   }
 
@@ -120,4 +121,10 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
       </div>
     </div>
   );
+}
+
+function getSafeCallbackUrl(callbackUrl: string | null, fallback: string) {
+  if (!callbackUrl) return fallback;
+  if (!callbackUrl.startsWith('/') || callbackUrl.startsWith('//')) return fallback;
+  return callbackUrl;
 }

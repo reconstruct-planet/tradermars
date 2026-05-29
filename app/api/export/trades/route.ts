@@ -1,7 +1,14 @@
+import { getServerSession } from 'next-auth';
 import { NextResponse } from 'next/server';
+import { authOptions } from '@/lib/auth';
 import { getTradingData } from '@/lib/data';
 
 export async function GET() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.email) {
+    return NextResponse.json({ error: 'Sign in to export trades.' }, { status: 401 });
+  }
+
   const data = await getTradingData();
   const headers = [
     'symbol',

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { ArrowRight, Check, CreditCard, ShieldCheck } from 'lucide-react';
+import { ArrowRight, Check, LockKeyhole, ShieldCheck } from 'lucide-react';
 import { Brand } from '@/components/brand';
 import { useI18n } from '@/components/i18n-provider';
 import { LanguageSelector } from '@/components/language-selector';
@@ -15,7 +15,6 @@ import {
   hasFeature,
   planDefinitions,
   planOrder,
-  stripePlanPlaceholders,
   type FeatureKey
 } from '@/lib/plans';
 
@@ -121,7 +120,7 @@ export function PricingPage() {
                       ))}
                     </div>
                     <Button asChild className="mt-7 w-full" variant={highlighted ? 'default' : 'outline'}>
-                      <Link href="/signup">
+                      <Link href={`/${locale}/signup`}>
                         {planId === 'FREE' ? t('common.startFree') : t('pricing.choosePlan', { plan: plan.name })}
                         <ArrowRight className="ml-2 h-4 w-4" />
                       </Link>
@@ -165,17 +164,13 @@ export function PricingPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <CreditCard className="h-5 w-5 text-primary" />
+                <LockKeyhole className="h-5 w-5 text-primary" />
                 {t('pricing.stripeTitle')}
               </CardTitle>
               <CardDescription>{t('pricing.stripeDescription')}</CardDescription>
             </CardHeader>
-            <CardContent className="grid gap-2 text-sm text-muted-foreground">
-              {planOrder.map((plan) => (
-                <p key={plan}>
-                  <span className="font-medium text-foreground">{planDefinitions[plan].name}:</span> {stripePlanPlaceholders[plan].monthlyPriceId}
-                </p>
-              ))}
+            <CardContent className="text-sm leading-6 text-muted-foreground">
+              {t('pricing.noPayment')}
             </CardContent>
           </Card>
           <Card>
@@ -187,7 +182,7 @@ export function PricingPage() {
               <CardDescription>{t('pricing.serverGateDescription')}</CardDescription>
             </CardHeader>
             <CardContent className="text-sm leading-6 text-muted-foreground">
-              The app reads plan state from trading data, uses a shared feature gate utility, and renders upgrade prompts for locked routes and navigation.
+              {t('pricing.comparisonDescription')}
             </CardContent>
           </Card>
         </section>
